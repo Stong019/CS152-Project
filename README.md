@@ -1,6 +1,12 @@
 # CS152-Project
 
-| First Header  | Second Header |
+| Symbol in Language  | Token Name |
 | ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+| integer number  | number  |
+| p  | Plus  |
+| s  | Subtract(minus)  |
+| m  | Multiply  |
+| d  | Divide  |
+| l  | Left Parantheses  |
+| r  | Right Parantheses  |
+| e  | Equal  |
