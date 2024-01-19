@@ -38,7 +38,6 @@
 |  ne  |  NotEqual      |
 |  "variable_name"  |  Ident      |
 |  I,V,X,L,C,D,M |  Num      |
-|  “ comment “  | Comment       |
 |  /\  |   Array     |
 |  START  |  main       |
 
