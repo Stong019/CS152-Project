@@ -1,5 +1,5 @@
 %{
-    int currLine = 1; int currPost = 1;
+    int currLine = 1; int currPos = 1;
 %}
 
 DIGIT[0-9]
