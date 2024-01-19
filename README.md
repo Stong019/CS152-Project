@@ -1,5 +1,9 @@
 # CS152-Project
 
+**Author(s):** Spencer Tong, Harrison Williams, Adolfo Bugarin
+
+### Table of Symbols
+
 | Symbol in Language  | Token Name |
 | ------------- | ------------- |
 | fn  | Func |
@@ -37,3 +41,11 @@
 |  “ comment “  | Comment       |
 |  /\  |   Array     |
 |  START  |  main       |
+
+### Comments
+
+Comments can be multi-line comments ecapsulated with quotes. For example:
+
+```
+int x; "This is a variable declaration"
+```
