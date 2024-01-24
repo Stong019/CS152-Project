@@ -1,0 +1,8 @@
+START r~
+    index e 0
+    
+    ... index lt 10 r~
+        < index
+        index e index p 1
+    l~
+l~

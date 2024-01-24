@@ -1,0 +1,33 @@
+START l r r~
+    A e 200
+    B e 100
+    C 
+
+    "Addition Outputs 300"
+    C e A p B
+    < C
+
+    "Subtraction Outputs 100"
+    C e A s B
+    < C
+
+    "Multiplication Outputs 2000"
+    C e A m B
+    < C
+
+    "Division Outputs 2"
+    C e A d B
+    < C
+
+    "Modulus Outputs 0"
+    C e A rem B
+    < C
+
+    "Complex Expression ((50/5) * 3)+ 50 "
+    A e 50
+    B e 5
+    C e 3
+    D e ll A d B r m C r p A
+    < D
+
+l~
