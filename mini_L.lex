@@ -22,7 +22,9 @@ COMMENT ["].*["]
 "r" {printf("RIGHT PAREN\n");}
 "l~" {printf("LEFT CURLY\n");}
 "r~" {printf("RIGHT CURLY\n");}
-"-" {printf("COMMA\n");}
+"l-" {printf("LEFT BRACKET\n");}
+"r-" {printf("RIGHT BRACKET\n");}
+"_" {printf("COMMA\n");}
 ":/" {printf("SEMICOLON\n");}
 "p" {printf("PLUS\n");}
 "s" {printf("SUBTRACT\n");}
