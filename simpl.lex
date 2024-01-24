@@ -1,4 +1,5 @@
 %{
+
     #include <stdio.h>
     
     int currLine = 1; int currPos = 1;
@@ -6,6 +7,7 @@
     // COMMENT ["](.|\n)*?["]
     // COMMENT ["].*["]
     // WHITESPACE [ \s\t\r\n\f]
+
 %}
 
 DIGIT [0-9]
@@ -13,6 +15,7 @@ ALPHA [a-zA-Z]
 COMMENT ["].*["]
 
 %%
+
 "\n" ++currLine; currPos = 1;
 " " ++currPos;
 
@@ -63,4 +66,6 @@ int main(int argc, char** argv) {
 
     yylex();
     return 0;
+
 }
+
