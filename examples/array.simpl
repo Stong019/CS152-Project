@@ -1,0 +1,31 @@
+"func main() {"
+"    int [4] array;"
+""
+"    # Should print out '2'"
+"    array[0] = 2;"
+"    print(array[0]);"
+""
+"    # Should print out '4'"
+"    array[1] = array[0] + array[0];"
+"    print(array[1]);"
+""
+"    # Should print out '8'"
+"    array[2] = array[1] + 2 * 2;"
+"    print(array[2]);"
+""
+"}"
+
+START l~
+    array/\ 4
+
+    array/0\ e 2
+    < array/0\
+    
+    array/1\ e array/0\ p array/0\
+    < array/1\
+
+    array/2\ e array/1\ p 2 m 2
+    < array/2\
+r~
+
+
