@@ -1,5 +1,13 @@
 %{
+
+    #include <stdio.h>
+    
     int currLine = 1; int currPos = 1;
+
+    // COMMENT ["](.|\n)*?["]
+    // COMMENT ["].*["]
+    // WHITESPACE [ \s\t\r\n\f]
+
 %}
 
 DIGIT [0-9]
@@ -8,40 +16,45 @@ COMMENT ["].*["]
 
 %%
 
-"fn" {printf("FUNC\n"); currPos += yyleng;} // have to add all the other combintaions
-"<-" {printf("RETURN\n");}
-"#" {printf("INT\n");}
-">" {printf("READ\n");}
-"<" {printf("WRITE\n");}
-"..." {printf("WHILE\n");}
-"?" {printf("IF\n");}
-"!" {printf("ELSE\n");}
-"b" {printf("BREAK\n");}
-"c" {printf("CONTINUE\n");}
-"l" {printf("LEFT PAREN\n");}
-"r" {printf("RIGHT PAREN\n");}
-"l~" {printf("LEFT CURLY\n");}
-"r~" {printf("RIGHT CURLY\n");}
-"l-" {printf("LEFT BRACKET\n");}
-"r-" {printf("RIGHT BRACKET\n");}
-"_" {printf("COMMA\n");}
-":/" {printf("SEMICOLON\n");}
-"p" {printf("PLUS\n");}
-"s" {printf("SUBTRACT\n");}
-"m" {printf("MULTIPLY\n");}
-"d" {printf("DIVIDE\n");}
-"rem" {printf("MODULUS\n");}
-"e" {printf("ASSIGN\n");}
-"lt" {printf("LESS THAN\n");}
-"leq" {printf("LESS EQUAL\n");}
-"gt" {printf("GREATER THAN\n");}
-"geq" {printf("GREATER EQUAL\n");}
-"is" {printf("EQUALITY\n");}
-"ne" {printf("NOT EQUAL\n");}
-"START" {printf("MAIN\n");}
-"/\\".*\n {printf("ARRAY\n");}                   // Needs to be changed
-{ALPHA}+ {printf("IDENTIFIER: %s\n", yytext);}
-{COMMENT} {printf("COMMENT\n");}
+"\n" ++currLine; currPos = 1;
+" " ++currPos;
+
+"fn"        {printf("FUNC\n"); currPos += yyleng;} // have to add all the other combintaions
+"<-"        {printf("RETURN\n"); currPos += yyleng;}
+"#"         {printf("INT\n"); currPos += yyleng;}
+">"         {printf("READ\n"); currPos += yyleng;}
+"<"         {printf("WRITE\n"); currPos += yyleng;}
+"..."       {printf("WHILE\n"); currPos += yyleng;}
+"?"         {printf("IF\n"); currPos += yyleng;}
+"!"         {printf("ELSE\n"); currPos += yyleng;}
+"b"         {printf("BREAK\n"); currPos += yyleng;}
+"c"         {printf("CONTINUE\n"); currPos += yyleng;}
+"l"         {printf("LEFT PAREN\n"); currPos += yyleng;}
+"r"         {printf("RIGHT PAREN\n"); currPos += yyleng;}
+"l~"        {printf("LEFT CURLY\n"); currPos += yyleng;}
+"r~"        {printf("RIGHT CURLY\n"); currPos += yyleng;}
+"l-"        {printf("LEFT BRACKET\n"); currPos += yyleng;}
+"r-"        {printf("RIGHT BRACKET\n"); currPos += yyleng;}
+"_"         {printf("COMMA\n"); currPos += yyleng;}
+":/"        {printf("SEMICOLON\n"); currPos += yyleng;}
+"p"         {printf("PLUS\n"); currPos += yyleng;}
+"s"         {printf("SUBTRACT\n"); currPos += yyleng;}
+"m"         {printf("MULTIPLY\n"); currPos += yyleng;}
+"d"         {printf("DIVIDE\n"); currPos += yyleng;}
+"rem"       {printf("MODULUS\n"); currPos += yyleng;}
+"e"         {printf("ASSIGN\n"); currPos += yyleng;}
+"lt"        {printf("LESS THAN\n"); currPos += yyleng;}
+"leq"       {printf("LESS EQUAL\n"); currPos += yyleng;}
+"gt"        {printf("GREATER THAN\n"); currPos += yyleng;}
+"geq"       {printf("GREATER EQUAL\n"); currPos += yyleng;}
+"is"        {printf("EQUALITY\n"); currPos += yyleng;}
+"ne"        {printf("NOT EQUAL\n"); currPos += yyleng;}
+"START"     {printf("MAIN\n"); currPos += yyleng;}
+{ALPHA}*"/"{DIGIT}*"\\"     {printf("ARRAY\n"); currPos += yyleng;}                   // Need to find way to save what is inside / and \
+{DIGIT}+    {printf("NUMBER: %s\n", yytext); currPos += yyleng;}
+{ALPHA}+    {printf("IDENTIFIER: %s\n", yytext); currPos += yyleng;}
+{COMMENT}+   {printf("COMMENT\n"); currPos += yyleng;}
+.           {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); currPos += yyleng;}
 
 %%
 
@@ -53,4 +66,6 @@ int main(int argc, char** argv) {
 
     yylex();
     return 0;
+
 }
+

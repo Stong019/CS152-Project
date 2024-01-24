@@ -1,0 +1,19 @@
+"A simple program which adds two numbers together"
+"This program should output '150'"
+
+"func main() {"
+"  int a;"
+"  int b;"
+"  int c;"
+"  a = 100;"
+"  b = 50;"
+"  c = a + b;"
+"  print(c);"
+"}"
+
+START l~
+  A e 100
+  B e 50
+  C e A p B
+  < C
+r~

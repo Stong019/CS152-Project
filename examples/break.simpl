@@ -1,0 +1,22 @@
+"func main() {"
+"    int i;"
+"    i = 0;"
+"    while i < 10 {"
+"        if i >= 4 {"
+"            break;"
+"        }"
+"        print(i);"
+"        i = i + 1;"
+"    }"
+"}"
+
+START l~
+    I e 0
+    ... I lt 10 l~
+        ? I geq 4 l~
+            b
+        r~
+        < I
+        I e I p 1
+    r~
+r~
