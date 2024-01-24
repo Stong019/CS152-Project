@@ -42,6 +42,7 @@ COMMENT ["].*["]
 "/\\".*\n {printf("ARRAY\n");}                   // Needs to be changed
 {ALPHA}+ {printf("IDENTIFIER: %s\n", yytext);}
 {COMMENT} {printf("COMMENT\n");}
+[ \t]	; // ignore all whitespace
 
 %%
 
