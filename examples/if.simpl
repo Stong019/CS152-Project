@@ -1,0 +1,54 @@
+"func main() {"
+"    int a;"
+"    int b;"
+"    int c;"
+
+    
+"    a = 100;"
+"    b = 50;"
+"    if a < b {"
+"        c = 0;"
+"    } else {"
+"        c = 1;"
+"    }"
+
+"    # Should print out '1'."
+"    print(c);"
+
+
+
+"    a = 100;"
+"    b = 50;"
+"    if a >= b {"
+"        c = 0;"
+"    } else {"
+"        c = 1;"
+"    }"
+
+"    # Should print out '0'"
+"    print(c);"
+"}"
+
+START l~
+    A e 100
+    B e 50
+    ? A lt B l~
+        C e 0
+    r~
+    ! l~
+        C e 1
+    r~
+
+    < C
+
+    A e 100
+    B e 50
+    ? A leq B l~
+        C e 0
+    r~
+    ! l~
+        C e 1
+    r~
+
+    < C
+r~
