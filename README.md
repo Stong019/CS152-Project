@@ -37,7 +37,7 @@
 |  is  |  Equality      |
 |  ne  |  NotEqual      |
 |  "variable_name"  |  Ident      |
-|  I,V,X,L,C,D,M |  Num      |
+|  integer number  |  Num      |
 |  /\  |   Array     |
 |  START  |  main       |
 
