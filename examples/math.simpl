@@ -27,7 +27,7 @@ START l r r~
     A e 50
     B e 5
     C e 3
-    D e ll A d B r m C r p A
+    D e l l A d B r m C r p A
     < D
 
 l~
