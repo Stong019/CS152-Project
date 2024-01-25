@@ -50,10 +50,12 @@ COMMENT ["].*["]
 "is"        {printf("EQUALITY\n"); currPos += yyleng;}
 "ne"        {printf("NOT EQUAL\n"); currPos += yyleng;}
 "START"     {printf("MAIN\n"); currPos += yyleng;}
-{ALPHA}*"/"{DIGIT}*"\\"     {printf("ARRAY\n"); currPos += yyleng;}                   // Need to find way to save what is inside / and \
+"/\\"     {printf("ARRAY\n"); currPos += yyleng;}         
 {DIGIT}+    {printf("NUMBER: %s\n", yytext); currPos += yyleng;}
-{ALPHA}+    {printf("IDENTIFIER: %s\n", yytext); currPos += yyleng;}
+{ALPHA}+({ALPHA}|{DIGIT})*   {printf("IDENTIFIER: %s\n", yytext); currPos += yyleng;}
 {COMMENT}+   {printf("COMMENT\n"); currPos += yyleng;}
+
+{DIGIT}+({ALPHA}|{DIGIT})*  {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos, yytext); currPos += yyleng;}
 .           {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); currPos += yyleng;}
 
 %%
