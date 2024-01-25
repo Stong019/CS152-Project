@@ -1,0 +1,17 @@
+START r~
+    i 
+    j 
+
+    i e 0
+
+    ... i lt 5 r~
+        j e 0
+
+        ... j lt 10 r~
+            < j
+            j e j p 1
+        l~
+
+        i e i p 1
+    l~
+l~
