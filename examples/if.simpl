@@ -29,26 +29,26 @@
 "    print(c);"
 "}"
 
-START l~
-    A e 100
-    B e 50
-    ? A lt B l~
-        C e 0
-    r~
-    ! l~
-        C e 1
-    r~
+START{
+    #A e 100
+    #B e 50
+    ? A lt B {
+        #C e 0
+    }
+    ! {
+        #C e 1
+    }
 
     < C
 
     A e 100
     B e 50
-    ? A leq B l~
+    ? A leq B{
         C e 0
-    r~
-    ! l~
+    }
+    ! {
         C e 1
-    r~
+    }
 
     < C
-r~
+}

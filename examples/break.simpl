@@ -10,13 +10,13 @@
 "    }"
 "}"
 
-START l~
-    I e 0
-    ... I lt 10 l~
-        ? I geq 4 l~
+START {
+    #I e 0
+    ... I lt 10 {
+        ? I geq 4 {
             b
-        r~
+        }
         < I
         I e I p 1
-    r~
-r~
+    }
+}

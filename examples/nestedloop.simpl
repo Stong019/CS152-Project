@@ -1,17 +1,17 @@
-START r~
-    i 
-    j 
+START {
+    #i 
+    #j 
 
     i e 0
 
-    ... i lt 5 r~
+    ... i lt 5 {
         j e 0
 
-        ... j lt 10 r~
+        ... j lt 10 {
             < j
             j e j p 1
-        l~
+        }
 
         i e i p 1
-    l~
-l~
+    }
+}
