@@ -50,7 +50,6 @@ COMMENT ["].*["]
 "is"        {printf("EQUALITY\n"); currPos += yyleng;}
 "ne"        {printf("NOT EQUAL\n"); currPos += yyleng;}
 "START"     {printf("MAIN\n"); currPos += yyleng;}
-"[{DIGIT}+]"     {printf("ARRAY\n"); currPos += yyleng;}         
 {DIGIT}+    {printf("NUMBER: %s\n", yytext); currPos += yyleng;}
 {ALPHA}+({ALPHA}|{DIGIT})*   {printf("IDENTIFIER: %s\n", yytext); currPos += yyleng;}
 {COMMENT}+   {currPos += yyleng;}
