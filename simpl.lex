@@ -29,12 +29,12 @@ COMMENT ["].*["]
 "!"         {printf("ELSE\n"); currPos += yyleng;}
 "b"         {printf("BREAK\n"); currPos += yyleng;}
 "c"         {printf("CONTINUE\n"); currPos += yyleng;}
-"l"         {printf("LEFT PAREN\n"); currPos += yyleng;}
-"r"         {printf("RIGHT PAREN\n"); currPos += yyleng;}
-"l~"        {printf("LEFT CURLY\n"); currPos += yyleng;}
-"r~"        {printf("RIGHT CURLY\n"); currPos += yyleng;}
-"l-"        {printf("LEFT BRACKET\n"); currPos += yyleng;}
-"r-"        {printf("RIGHT BRACKET\n"); currPos += yyleng;}
+"("         {printf("LEFT PAREN\n"); currPos += yyleng;}
+")"         {printf("RIGHT PAREN\n"); currPos += yyleng;}
+"{"        {printf("LEFT CURLY\n"); currPos += yyleng;}
+"}"        {printf("RIGHT CURLY\n"); currPos += yyleng;}
+"["        {printf("LEFT BRACKET\n"); currPos += yyleng;}
+"]"        {printf("RIGHT BRACKET\n"); currPos += yyleng;}
 "_"         {printf("COMMA\n"); currPos += yyleng;}
 ":/"        {printf("SEMICOLON\n"); currPos += yyleng;}
 "p"         {printf("PLUS\n"); currPos += yyleng;}
@@ -50,7 +50,6 @@ COMMENT ["].*["]
 "is"        {printf("EQUALITY\n"); currPos += yyleng;}
 "ne"        {printf("NOT EQUAL\n"); currPos += yyleng;}
 "START"     {printf("MAIN\n"); currPos += yyleng;}
-"/\\"     {printf("ARRAY\n"); currPos += yyleng;}         
 {DIGIT}+    {printf("NUMBER: %s\n", yytext); currPos += yyleng;}
 {ALPHA}+({ALPHA}|{DIGIT})*   {printf("IDENTIFIER: %s\n", yytext); currPos += yyleng;}
 {COMMENT}+   {currPos += yyleng;}

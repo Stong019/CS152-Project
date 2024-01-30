@@ -11,9 +11,9 @@
 "  print(c);"
 "}"
 
-START l~
-  A e 100
-  B e 50
-  C e A p B
+START {
+  #A e 100
+  #B e 50
+  #C e A p B
   < C
-r~
+}

@@ -15,17 +15,17 @@
 "    print(b);"
 "}"
 
-fn ADD l A_B r l~
+fn ADD (#A _ #B){
     <- A p B
-r~
+}
 
-fn MULT l A_B r l~
+fn MULT (#A _ #B){
     <- A m B
-r~
+}
 
-START l~
-    A e ADD l 10_2 r
+START {
+    #A e ADD(10 _ 2)
     < A
-    B e MULT l A_A p B r
+    #B e MULT(A _ A p B)
     < B
-r~
+}
