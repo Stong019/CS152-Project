@@ -41,8 +41,8 @@ int paren_count = 0;
 %start functions
 
 %%
-functions: functions function {printf("%g\n", $2);}
-        | %empty
+functions: functions function   {printf("functions -> functions function\n");}
+        | %empty                {printf("functions -> epsilon\n");}
         ;
 
 function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY
@@ -57,14 +57,14 @@ statement: if-else
         | while
         | values
         | declaration
-        | RETRUN values
+        | RETURN values
         | READ value
         | WRITE value
         | BREAK
         | CONTINUE
         ;
 
-values: values action value
+values: action //values action value
         | value
         ;
 
@@ -96,14 +96,27 @@ action: add
         | mult
         | div
         | mod
-        | NUMBER
+        | assign
+        | less
+        | lesseq
+        | great
+        | greateq
+        | equal
+        | notequal
         ;
 
-add:  L_PAREN ADD  expression expression R_PAREN {$$ = $3 + $4;};
-sub:  L_PAREN SUB  expression expression R_PAREN {$$ = $3 - $4;};
-mult: L_PAREN MULT expression expression R_PAREN {$$ = $3 * $4;};
-div:  L_PAREN DIV  expression expression R_PAREN {$$ = $3 / $4;};
-mod:  L_PAREN MOD  expression expression R_PAREN {$$ = fmod($3, $4);};
+add: values ADD value {$$ = $1 + $3};
+mult: values MULT value {$$ = $1 * $3};
+div: values DIV value {$$ = $1 / $3};
+mod: values MOD value {$$ = $1 % $3};
+assign: value ASSIGN values {$1 = $3}
+less: values LESS values {$1 < $3 ? $ : }
+lesseq: values LESS_EQUAL values
+great: values GREATER values
+greateq: values GREATER_EQUAL values
+equal: values EQUAL values
+notequal: values NOT_EQUAL values
+
 %%
 
 int main(int argc, char** argv) {
