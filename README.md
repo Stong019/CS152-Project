@@ -16,12 +16,12 @@
 | ! | Else |
 | b |  Break  |
 | c |  Continue |
-| l | LeftParen |
-| r | RightParen |
-| l~ | LeftCurly |
-| r~ | RightCurly |
-| l- | LeftBracket |
-| r- | RightBracket |
+| ( | LeftParen |
+| ) | RightParen |
+| { | LeftCurly |
+| } | RightCurly |
+| [ | LeftBracket |
+| ] | RightBracket |
 | _  | Comma |
 | :/ | Semicolon |
 |  p  | plus |
@@ -38,12 +38,11 @@
 |  ne  |  NotEqual      |
 |  "variable_name"  |  Ident      |
 |  integer number  |  Num      |
-|  /\  |   Array     |
 |  START  |  main       |
 
 ### Comments
 
-Comments can be multi-line comments ecapsulated with quotes. For example:
+Comments can be multi-line comments encapsulated with quotes. For example:
 
 ```
 int x; "This is a variable declaration"
