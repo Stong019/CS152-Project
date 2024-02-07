@@ -36,22 +36,68 @@ int paren_count = 0;
 
 %token UNKNOWN_TOKEN 
 
-%nterm <double> expression add sub mult div mod
+%nterm <double> functions function statement statements values value parameters if_stmt while declaration action
 
-%start expressions 
+%start functions
 
 %%
-expressions: expressions expression {printf("%g\n", $2);}
-           | %empty
-           ;
+functions: functions function {printf("%g\n", $2);}
+        | %empty
+        ;
 
-expression: add
-          | sub
-          | mult
-          | div
-          | mod
-          | NUMBER
-          ;
+function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY
+        | START L_CURLY statements R_CURLY
+        ;
+
+statements: statements PERIOD statement 
+        | %empty
+        ;
+
+statement: if-else
+        | while
+        | values
+        | declaration
+        | RETRUN values
+        | READ value
+        | WRITE value
+        | BREAK
+        | CONTINUE
+        ;
+
+values: values action value
+        | value
+        ;
+
+value: IDENT
+        | IDENT L_PAREN parameters R_PAREN
+        | IDENT L_BRAC NUM R_BRAC
+        ;
+
+declaration: INT IDENT
+        | INT IDENT ASSIGN values
+        | INT IDENT L_BRAC NUM R_BRAC
+        | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY
+        ;
+
+parameters: parameters COMMA value
+        | value
+        | %empty
+        ;
+
+if-stmt: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY
+        | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY
+        ;
+
+while: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY
+        ;
+
+action: add
+        | sub
+        | mult
+        | div
+        | mod
+        | NUMBER
+        ;
 
 add:  L_PAREN ADD  expression expression R_PAREN {$$ = $3 + $4;};
 sub:  L_PAREN SUB  expression expression R_PAREN {$$ = $3 - $4;};

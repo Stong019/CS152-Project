@@ -19,6 +19,8 @@ COMMENT ["].*["]
 "\n" ++currLine; currPos = 1;
 " " ++currPos;
 
+"."         {printf("PERIOD\n"); currPos += yyleng;}
+
 "fn"        {printf("FUNC\n"); currPos += yyleng;} // have to add all the other combintaions
 "<-"        {printf("RETURN\n"); currPos += yyleng;}
 "#"         {printf("INT\n"); currPos += yyleng;}
