@@ -16,10 +16,10 @@
 "}"
 
 START {
-    #array[4]
+    #array[4].
 
-    array[0] e 2
-    < array[0]
+    array[0] e 2.
+    < array[0].
     
     array[1] e array[0] p array[0]
     < array [1]
