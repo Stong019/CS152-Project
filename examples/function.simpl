@@ -16,16 +16,16 @@
 "}"
 
 fn ADD (#A _ #B){
-    <- A p B
+    <- A p B.
 }
 
 fn MULT (#A _ #B){
-    <- A m B
+    <- A m B.
 }
 
 START {
-    #A e ADD(10 _ 2)
-    < A
-    #B e MULT(A _ A p B)
-    < B
+    #A e ADD(10 _ 2).
+    < A.
+    #B e MULT(A _ A p B).
+    < B.
 }

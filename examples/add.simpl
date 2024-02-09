@@ -12,8 +12,8 @@
 "}"
 
 START {
-  #A e 100
-  #B e 50
-  #C e A p B
-  < C
+  #A e 100.
+  #B e 50.
+  #C e A p B.
+  < C.
 }

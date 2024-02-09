@@ -1,8 +1,8 @@
 START {
-    #index e 0
+    #index e 0.
     
-    ... index lt 10{
-        < index
-        index e index p 1
+    ... (index lt 10){
+        < index.
+        index e index p 1.
     }
 }

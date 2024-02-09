@@ -1,17 +1,17 @@
 START {
-    #i 
-    #j 
+    #i.
+    #j.
 
-    i e 0
+    i e 0.
 
-    ... i lt 5 {
-        j e 0
+    ... (i lt 5) {
+        j e 0.
 
-        ... j lt 10 {
-            < j
-            j e j p 1
+        ... (j lt 10) {
+            < j.
+            j e j p 1.
         }
 
-        i e i p 1
+        i e i p 1.
     }
 }

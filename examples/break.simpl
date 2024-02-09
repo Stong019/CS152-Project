@@ -11,12 +11,12 @@
 "}"
 
 START {
-    #I e 0
-    ... I lt 10 {
-        ? I geq 4 {
-            b
+    #I e 0.
+    ... (I lt 10) {
+        ? (I geq 4) {
+            b.
         }
-        < I
-        I e I p 1
+        < I.
+        I e I p 1.
     }
 }

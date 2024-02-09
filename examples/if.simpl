@@ -30,25 +30,25 @@
 "}"
 
 START{
-    #A e 100
-    #B e 50
-    ? A lt B {
-        #C e 0
+    #A e 100.
+    #B e 50.
+    ? (A lt B) {
+        #C e 0.
     }
     ! {
-        #C e 1
+        #C e 1.
     }
 
-    < C
+    < C.
 
-    A e 100
-    B e 50
-    ? A leq B{
-        C e 0
+    A e 100.
+    B e 50.
+    ? (A leq B){
+        C e 0.
     }
     ! {
-        C e 1
+        C e 1.
     }
 
-    < C
+    < C.
 }
