@@ -1,5 +1,4 @@
 %{
-
     #include <stdio.h>
     
     int currLine = 1; int currPos = 1;
@@ -7,6 +6,9 @@
     // COMMENT ["](.|\n)*?["]
     // COMMENT ["].*["]
     // WHITESPACE [ \s\t\r\n\f]
+
+    #define YY_USER_ACTION currPos += yyleng;
+    #include "parser.tab.h"
 
 %}
 
@@ -16,48 +18,48 @@ COMMENT ["].*["]
 
 %%
 
-"\n" ++currLine; currPos = 1;
-" " ++currPos;
+"\n" {++currLine; currPos = 1;}
+" " {}
 
-"."         {printf("PERIOD\n"); currPos += yyleng;}
+"."         {return PERIOD;}
 
-"fn"        {printf("FUNC\n"); currPos += yyleng;} // have to add all the other combintaions
-"<-"        {printf("RETURN\n"); currPos += yyleng;}
-"#"         {printf("INT\n"); currPos += yyleng;}
-">"         {printf("READ\n"); currPos += yyleng;}
-"<"         {printf("WRITE\n"); currPos += yyleng;}
-"..."       {printf("WHILE\n"); currPos += yyleng;}
-"?"         {printf("IF\n"); currPos += yyleng;}
-"!"         {printf("ELSE\n"); currPos += yyleng;}
-"b"         {printf("BREAK\n"); currPos += yyleng;}
-"c"         {printf("CONTINUE\n"); currPos += yyleng;}
-"("         {printf("LEFT PAREN\n"); currPos += yyleng;}
-")"         {printf("RIGHT PAREN\n"); currPos += yyleng;}
-"{"        {printf("LEFT CURLY\n"); currPos += yyleng;}
-"}"        {printf("RIGHT CURLY\n"); currPos += yyleng;}
-"["        {printf("LEFT BRACKET\n"); currPos += yyleng;}
-"]"        {printf("RIGHT BRACKET\n"); currPos += yyleng;}
-"_"         {printf("COMMA\n"); currPos += yyleng;}
-":/"        {printf("SEMICOLON\n"); currPos += yyleng;}
-"p"         {printf("PLUS\n"); currPos += yyleng;}
-"s"         {printf("SUBTRACT\n"); currPos += yyleng;}
-"m"         {printf("MULTIPLY\n"); currPos += yyleng;}
-"d"         {printf("DIVIDE\n"); currPos += yyleng;}
-"rem"       {printf("MODULUS\n"); currPos += yyleng;}
-"e"         {printf("ASSIGN\n"); currPos += yyleng;}
-"lt"        {printf("LESS THAN\n"); currPos += yyleng;}
-"leq"       {printf("LESS EQUAL\n"); currPos += yyleng;}
-"gt"        {printf("GREATER THAN\n"); currPos += yyleng;}
-"geq"       {printf("GREATER EQUAL\n"); currPos += yyleng;}
-"is"        {printf("EQUALITY\n"); currPos += yyleng;}
-"ne"        {printf("NOT EQUAL\n"); currPos += yyleng;}
-"START"     {printf("MAIN\n"); currPos += yyleng;}
-{DIGIT}+    {printf("NUMBER: %s\n", yytext); currPos += yyleng;}
-{ALPHA}+({ALPHA}|{DIGIT})*   {printf("IDENTIFIER: %s\n", yytext); currPos += yyleng;}
-{COMMENT}+   {currPos += yyleng;}
+"fn"        {return FUNC;} // have to add all the other combintaions
+"<-"        {return RETURN;}
+"#"         {return INT;}
+">"         {return READ; }
+"<"         {return WRITE; }
+"..."       {return WHILE; }
+"?"         {return IF; }
+"!"         {return ELSE; }
+"b"         {return BREAK; }
+"c"         {return CONTINUE; }
+"("         {return LEFT PAREN; }
+")"         {return RIGHT PAREN; }
+"{"        {return LEFT CURLY; }
+"}"        {return RIGHT CURLY; }
+"["        {return LEFT BRACKET; }
+"]"        {return RIGHT BRACKET; }
+"_"         {return COMMA; }
+":/"        {return SEMICOLON; }
+"p"         {return PLUS; }
+"s"         {return SUBTRACT; }
+"m"         {return MULTIPLY; }
+"d"         {return DIVIDE; }
+"rem"       {return MODULUS; }
+"e"         {return ASSIGN; }
+"lt"        {return LESS THAN; }
+"leq"       {return LESS EQUAL; }
+"gt"        {return GREATER THAN; }
+"geq"       {return GREATER EQUAL; }
+"is"        {return EQUALITY; }
+"ne"        {return NOT EQUAL; }
+"START"     {return MAIN; }
+{DIGIT}+    {return NUMBER; }
+{ALPHA}+({ALPHA}|{DIGIT})*   {return IDENTIFIER; }
+{COMMENT}+   {}
 
-{DIGIT}+({ALPHA}|{DIGIT})*  {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos, yytext); currPos += yyleng;}
-.           {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); currPos += yyleng;}
+{DIGIT}+({ALPHA}|{DIGIT})*  {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos - yyleng, yytext); }
+.           {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos - yyleng, yytext); }
 
 %%
 

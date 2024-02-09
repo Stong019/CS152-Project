@@ -13,9 +13,6 @@ int paren_count = 0;
 %}
 
 %locations
-%define api.value.type union
-%define parse.error verbose
-%define parse.lac full
 
 %left ASSIGN
 %left LESS GREATER LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL
@@ -31,12 +28,12 @@ int paren_count = 0;
 %token FUNC INT START 
 %token COMMA SEMICOLON
 
-%token <double> NUM
+%token NUM
 %token <char*> IDENT
 
 %token UNKNOWN_TOKEN 
 
-%nterm <double> functions function statement statements values value parameters if_stmt while declaration action
+%nterm  functions function statement statements values value parameters if_stmt while declaration action
 
 %start functions
 
@@ -53,7 +50,7 @@ statements: statements PERIOD statement {printf("statements -> statements PERIOD
         | %empty                        {printf("statements -> epsilon\n");}
         ;
 
-statement: if-else      {printf("statement -> if-else\n");}
+statement: ifelse      {printf("statement -> ifelse\n");}
         | while         {printf("statement -> while\n");}
         | values        {printf("statement -> values\n");}
         | declaration   {printf("statement -> declaration\n");}
@@ -84,7 +81,7 @@ parameters: parameters COMMA value  {printf("parameters -> parameters COMMA valu
         | %empty                    {printf("parameters -> epsilon\n");}
         ;
 
-if-stmt: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY
+ifelse: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY
         | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY
         ;
 
@@ -105,12 +102,12 @@ action: add
         | notequal
         ;
 
-add: values ADD value {$$ = $1 + $3};
-mult: values MULT value {$$ = $1 * $3};
+add: values ADD value 
+mult: values MULT value 
 div: values DIV value {$$ = $1 / $3};
 mod: values MOD value {$$ = $1 % $3};
 assign: value ASSIGN values {$1 = $3}
-less: values LESS values {$1 < $3 ? $ : }
+less: values LESS values {}
 lesseq: values LESS_EQUAL values
 great: values GREATER values
 greateq: values GREATER_EQUAL values
