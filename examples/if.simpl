@@ -32,7 +32,7 @@
 START{
     #A e 100.
     #B e 50.
-    ? A lt B {
+    ? (A lt B) {
         #C e 0.
     }
     ! {
@@ -43,7 +43,7 @@ START{
 
     A e 100.
     B e 50.
-    ? A leq B{
+    ? (A leq B){
         C e 0.
     }
     ! {

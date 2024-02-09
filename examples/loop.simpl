@@ -1,7 +1,7 @@
 START {
     #index e 0.
     
-    ... index lt 10{
+    ... (index lt 10){
         < index.
         index e index p 1.
     }

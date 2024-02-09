@@ -35,7 +35,7 @@ int paren_count = 0;
 
 %token UNKNOWN_TOKEN 
 
-%nterm  functions function statement statements values value parameters if while declaration action
+%nterm  functions function statement statements values value parameters if while declaration action bracestatement
 
 %start functions
 
@@ -48,13 +48,12 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY  {pri
         | MAIN L_CURLY statements R_CURLY                                  {printf("function -> START L_CURLY statements R_CURLY\n");}
         ;
 
-statements: statement PERIOD statements {printf("statements -> statements PERIOD statement\n");}
+statements: statement PERIOD statements {printf("statements -> statement PERIOD statements\n");}
+        | bracestatement statements     {printf("statements -> bracestatement statements\n");}
         | %empty                        {printf("statements -> epsilon\n");}
         ;
 
-statement: if           {printf("statement -> if\n");}
-        | while         {printf("statement -> while\n");}
-        | values        {printf("statement -> values\n");}
+statement: values        {printf("statement -> values\n");}
         | declaration   {printf("statement -> declaration\n");}
         | RETURN values {printf("statement -> RETURN values\n");}
         | READ value    {printf("statement -> READ value\n");}
@@ -63,8 +62,13 @@ statement: if           {printf("statement -> if\n");}
         | CONTINUE      {printf("statement -> CONTINUE\n");}
         ;
 
-values: action      {printf("values -> action\n");}
-        | value     {printf("values -> value\n");}
+bracestatement: if      {printf("bracestatement -> if\n");}
+        | while         {printf("bracestatement -> while\n");}
+        ;
+
+values: L_PAREN values R_PAREN    {printf("values -> L_PAREN values R_PAREN\n");}
+        |  action                      {printf("values -> action\n");}
+        | value                     {printf("values -> value\n");}
         ;
 
 value: IDENT
@@ -79,9 +83,11 @@ declaration: INT IDENT                                                  {printf(
         | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY     {printf("declaration -> INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY\n");}
         ;
 
-parameters: parameters COMMA value  {printf("parameters -> parameters COMMA value\n");}
-        | value                     {printf("parameters -> value\n");}
-        | %empty                    {printf("parameters -> epsilon\n");}
+parameters: values COMMA parameters      {printf("parameters -> value COMMA parameters\n");}
+        | values                         {printf("parameters -> value\n");}
+        | declaration COMMA parameters  {printf("parameters -> declaration COMMA parameters\n");}
+        | declaration                   {printf("parameters -> declaration\n");}        
+        | %empty                        {printf("parameters -> epsilon\n");}
         ;
 
 if: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
