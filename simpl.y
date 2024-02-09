@@ -35,7 +35,7 @@ int paren_count = 0;
 
 %token UNKNOWN_TOKEN 
 
-%nterm  functions function statement statements values value parameters ifelse while declaration action
+%nterm  functions function statement statements values value parameters if while declaration action
 
 %start functions
 
@@ -52,7 +52,7 @@ statements: statement PERIOD statements {printf("statements -> statements PERIOD
         | %empty                        {printf("statements -> epsilon\n");}
         ;
 
-statement: ifelse      {printf("statement -> ifelse\n");}
+statement: if           {printf("statement -> if\n");}
         | while         {printf("statement -> while\n");}
         | values        {printf("statement -> values\n");}
         | declaration   {printf("statement -> declaration\n");}
@@ -84,8 +84,8 @@ parameters: parameters COMMA value  {printf("parameters -> parameters COMMA valu
         | %empty                    {printf("parameters -> epsilon\n");}
         ;
 
-ifelse: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if-stmt -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
-        | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if-stmt -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
+if: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+        | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
         ;
 
 while: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
