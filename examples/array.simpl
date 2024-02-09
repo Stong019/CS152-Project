@@ -21,11 +21,11 @@ START {
     array[0] e 2.
     < array[0].
     
-    array[1] e array[0] p array[0]
-    < array [1]
+    array[1] e array[0] p array[0].
+    < array [1].
 
-    array[2] e array[1] p 2 m 2
-    < array [2]
+    array[2] e array[1] p 2 m 2.
+    < array [2].
 }
 
 

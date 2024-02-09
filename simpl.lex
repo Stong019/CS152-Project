@@ -54,6 +54,7 @@ COMMENT ["].*["]
 "is"        {return EQUAL; }
 "ne"        {return NOT_EQUAL; }
 "START"     {return MAIN; }
+
 {DIGIT}+    {return NUM; }
 {ALPHA}+({ALPHA}|{DIGIT})*   {return IDENT; }
 {COMMENT}+   {}

@@ -7,10 +7,12 @@
 extern int yylex();
 extern FILE* yyin;
 
+
 void yyerror(const char* s);
 
 int paren_count = 0;
 %}
+%define api.value.type union
 
 %locations
 
@@ -33,7 +35,7 @@ int paren_count = 0;
 
 %token UNKNOWN_TOKEN 
 
-%nterm  functions function statement statements values value parameters if_stmt while declaration action
+%nterm  functions function statement statements values value parameters ifelse while declaration action
 
 %start functions
 
@@ -46,7 +48,7 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY  {pri
         | MAIN L_CURLY statements R_CURLY                                  {printf("function -> START L_CURLY statements R_CURLY\n");}
         ;
 
-statements: statements PERIOD statement {printf("statements -> statements PERIOD statement\n");}
+statements: statement PERIOD statements {printf("statements -> statements PERIOD statement\n");}
         | %empty                        {printf("statements -> epsilon\n");}
         ;
 
@@ -68,6 +70,7 @@ values: action      {printf("values -> action\n");}
 value: IDENT
         | IDENT L_PAREN parameters R_PAREN      {printf("value -> IDENT L_PAREN parameters R_PAREN\n");}
         | IDENT L_BRAC NUM R_BRAC               {printf("value -> IDENT L_BRAC NUM R_BRAC\n");}
+        | NUM                                   {printf("value -> NUM\n");}
         ;
 
 declaration: INT IDENT                                                  {printf("declaration -> INT IDENT\n");}

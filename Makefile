@@ -28,4 +28,4 @@
 all: 
 	bison -t -d -v simpl.y
 	flex simpl.lex
-	g++ lex.yy.c simpl.tab.c -ll
+	g++ lex.yy.c simpl.tab.c -ll -o simpl
