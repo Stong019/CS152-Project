@@ -81,11 +81,11 @@ parameters: parameters COMMA value  {printf("parameters -> parameters COMMA valu
         | %empty                    {printf("parameters -> epsilon\n");}
         ;
 
-ifelse: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY {printf("if-stmt -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
-        | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY {printf("if-stmt -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
+ifelse: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if-stmt -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+        | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if-stmt -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
         ;
 
-while: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+while: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
         ;
 
 action: add             {printf("action -> add\n");}
@@ -103,17 +103,18 @@ action: add             {printf("action -> add\n");}
         ;
 
 
-add: values ADD value {printf("add -> values ADD -> value\n");}
-mult: values MULT value {printf("mult -> values MULT value\n");}
-div: values DIV value {printf("div -> values DIV value\n");}
-mod: values MOD value {printf("mod -> values MOD value\n");}
-assign: value ASSIGN values {printf("assign -> value ASSIGN values\n");}
-less: values LESS values {printf("less -> values LESS values\n");}
-lesseq: values LESS_EQUAL values {printf("lesseq -> values LESS_EQUAL values\n");}
-great: values GREATER values {printf("great -> values GREATER values\n");} 
-greateq: values GREATER_EQUAL values {printf("greateq -> values GREATER_EQUAL values\n");}
-equal: values EQUAL values {printf("equal -> values EQUAL values\n");}
-notequal: values NOT_EQUAL values {printf("notequal -> values NOT_EQUAL values\n");}
+add: values ADD value                   {printf("add -> values ADD value\n");}
+sub: values SUB value                   {printf("sub -> values SUB value\n");}
+mult: values MULT value                 {printf("mult -> values MULT value\n");}
+div: values DIV value                   {printf("div -> values DIV value\n");}
+mod: values MOD value                   {printf("mod -> values MOD value\n");}
+assign: value ASSIGN values             {printf("assign -> value ASSIGN values\n");}
+less: values LESS values                {printf("less -> values LESS values\n");}
+lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL values\n");}
+great: values GREATER values            {printf("great -> values GREATER values\n");} 
+greateq: values GREATER_EQUAL values    {printf("greateq -> values GREATER_EQUAL values\n");}
+equal: values EQUAL values              {printf("equal -> values EQUAL values\n");}
+notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");}
 
 %%
 
