@@ -17,7 +17,7 @@ int paren_count = 0;
 %left ASSIGN
 %left LESS GREATER LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL
 %left SUB ADD
-%left MULT DIV MOD
+%left MUL DIV MOD
 
 %token RETURN BREAK CONTINUE
 %token L_BRAC R_BRAC
@@ -25,8 +25,8 @@ int paren_count = 0;
 %token L_CURLY R_CURLY
 %token READ WRITE
 %token WHILE IF ELSE
-%token FUNC INT START 
-%token COMMA SEMICOLON
+%token FUNC INT MAIN 
+%token COMMA SEMICOLON PERIOD
 
 %token NUM
 %token <char*> IDENT
@@ -39,11 +39,11 @@ int paren_count = 0;
 
 %%
 functions: functions function   {printf("functions -> functions function\n");}
-        | %empty                {printf("functions -> epsilon\n");}
+        |  %empty               {printf("functions -> epsilon\n");}
         ;
 
 function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY  {printf("function -> FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY\n");}
-        | START L_CURLY statements R_CURLY                                  {printf("function -> START L_CURLY statements R_CURLY\n");}
+        | MAIN L_CURLY statements R_CURLY                                  {printf("function -> START L_CURLY statements R_CURLY\n");}
         ;
 
 statements: statements PERIOD statement {printf("statements -> statements PERIOD statement\n");}
@@ -90,7 +90,7 @@ while: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -
 
 action: add             {printf("action -> add\n");}
         | sub           {printf("action -> sub\n");}
-        | mult          {printf("action -> mult\n");}
+        | mul          {printf("action -> mult\n");}
         | div           {printf("action -> div\n");}
         | mod           {printf("action -> mod\n");}
         | assign        {printf("action -> assign\n");}
@@ -105,7 +105,7 @@ action: add             {printf("action -> add\n");}
 
 add: values ADD value                   {printf("add -> values ADD value\n");}
 sub: values SUB value                   {printf("sub -> values SUB value\n");}
-mult: values MULT value                 {printf("mult -> values MULT value\n");}
+mul: values MUL value                 {printf("mul -> values MUL value\n");}
 div: values DIV value                   {printf("div -> values DIV value\n");}
 mod: values MOD value                   {printf("mod -> values MOD value\n");}
 assign: value ASSIGN values             {printf("assign -> value ASSIGN values\n");}

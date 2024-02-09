@@ -10,6 +10,7 @@
 # 	@:
 
 # compile:
+# 	bison -t -d -v simpl.y
 # 	flex $(SIMPL_LANG)
 # 	gcc $(LEX_CFILE) -ll -o simpl
 
@@ -27,4 +28,4 @@
 all: 
 	bison -t -d -v simpl.y
 	flex simpl.lex
-	gcc lex.yy.c -ll
+	g++ lex.yy.c simpl.tab.c -ll

@@ -8,7 +8,7 @@
     // WHITESPACE [ \s\t\r\n\f]
 
     #define YY_USER_ACTION currPos += yyleng;
-    #include "parser.tab.h"
+    #include "simpl.tab.h"
 
 %}
 
@@ -33,29 +33,29 @@ COMMENT ["].*["]
 "!"         {return ELSE; }
 "b"         {return BREAK; }
 "c"         {return CONTINUE; }
-"("         {return LEFT PAREN; }
-")"         {return RIGHT PAREN; }
-"{"        {return LEFT CURLY; }
-"}"        {return RIGHT CURLY; }
-"["        {return LEFT BRACKET; }
-"]"        {return RIGHT BRACKET; }
+"("         {return L_PAREN; }
+")"         {return R_PAREN; }
+"{"        {return L_CURLY; }
+"}"        {return R_CURLY; }
+"["        {return L_BRAC; }
+"]"        {return R_BRAC; }
 "_"         {return COMMA; }
 ":/"        {return SEMICOLON; }
-"p"         {return PLUS; }
-"s"         {return SUBTRACT; }
-"m"         {return MULTIPLY; }
-"d"         {return DIVIDE; }
-"rem"       {return MODULUS; }
+"p"         {return ADD; }
+"s"         {return SUB; }
+"m"         {return MUL; }
+"d"         {return DIV; }
+"rem"       {return MOD; }
 "e"         {return ASSIGN; }
-"lt"        {return LESS THAN; }
-"leq"       {return LESS EQUAL; }
-"gt"        {return GREATER THAN; }
-"geq"       {return GREATER EQUAL; }
-"is"        {return EQUALITY; }
-"ne"        {return NOT EQUAL; }
+"lt"        {return LESS; }
+"leq"       {return LESS_EQUAL; }
+"gt"        {return GREATER; }
+"geq"       {return GREATER_EQUAL; }
+"is"        {return EQUAL; }
+"ne"        {return NOT_EQUAL; }
 "START"     {return MAIN; }
-{DIGIT}+    {return NUMBER; }
-{ALPHA}+({ALPHA}|{DIGIT})*   {return IDENTIFIER; }
+{DIGIT}+    {return NUM; }
+{ALPHA}+({ALPHA}|{DIGIT})*   {return IDENT; }
 {COMMENT}+   {}
 
 {DIGIT}+({ALPHA}|{DIGIT})*  {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos - yyleng, yytext); }
@@ -63,14 +63,4 @@ COMMENT ["].*["]
 
 %%
 
-int main(int argc, char** argv) {
-    if(argc > 1){
-            if(yyin == NULL) {yyin = stdin;}
-    }
-    else { yyin = stdin;}
-
-    yylex();
-    return 0;
-
-}
 
