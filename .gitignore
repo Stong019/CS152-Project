@@ -1,3 +1,7 @@
 a.out
 simpl.out
 lex.yy.c
+simpl
+simpl.output
+simpl.tab.c
+simpl.tab.h

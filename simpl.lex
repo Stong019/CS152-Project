@@ -1,5 +1,6 @@
 %{
     #include <stdio.h>
+    #include "simpl.tab.h"
     
     int currLine = 1; int currPos = 1;
 
@@ -7,8 +8,11 @@
     // COMMENT ["].*["]
     // WHITESPACE [ \s\t\r\n\f]
 
-    #define YY_USER_ACTION currPos += yyleng;
-    #include "simpl.tab.h"
+    #define YY_USER_ACTION \
+        yylloc.first_line = yylloc.last_line = currLine - 1;\
+        yylloc.first_column = 1;\
+        currPos += yyleng;\
+        yylloc.last_column = currPos + yyleng - 1;\
 
 %}
 
@@ -59,8 +63,8 @@ COMMENT ["].*["]
 {ALPHA}+({ALPHA}|{DIGIT})*   {return IDENT; }
 {COMMENT}+   {}
 
-{DIGIT}+({ALPHA}|{DIGIT})*  {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos - yyleng, yytext); }
-.           {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos - yyleng, yytext); }
+{DIGIT}+({ALPHA}|{DIGIT})*  {printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos, yytext); }
+.           {printf("Error at line %d, column %d: unrecognized symbol \"%s\"\n", currLine, currPos, yytext); }
 
 %%
 
