@@ -10,7 +10,7 @@
 
     #define YY_USER_ACTION \
         yylloc.first_line = yylloc.last_line = currLine - 1;\
-        yylloc.first_column = currPos - yylex;\
+        yylloc.first_column = currPos;\
         currPos += yyleng;\
         yylloc.last_column = currPos - 1;\
 
