@@ -1,6 +1,6 @@
-# EXECUTABLE := simpl
+EXECUTABLE := simpl
 # SIMPL_LANG := simpl.lex
-# LEX_CFILE := lex.yy.c
+LEX_CFILE := lex.yy.c
 # FILE_PATH ?= 
 
 # ARGS = $(filter-out $@,$(MAKECMDGOALS))
@@ -21,11 +21,14 @@
 # 		./$(EXECUTABLE) < "$(ARGS)"; \
 # 	fi
 
-# clean:
-# 	rm $(EXECUTABLE)
-# 	rm $(LEX_CFILE)
+clean:
+	rm $(EXECUTABLE)
+	rm $(LEX_CFILE)
+	rm simpl.output
+	rm simpl.tab.c
+	rm simpl.tab.h
 
-all: 
+compile: 
 	bison -t -d -v simpl.y
 	flex simpl.lex
 	g++ lex.yy.c simpl.tab.c -ll -o simpl
