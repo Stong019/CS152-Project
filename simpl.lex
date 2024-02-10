@@ -9,10 +9,9 @@
     // WHITESPACE [ \s\t\r\n\f]
 
     #define YY_USER_ACTION \
-        yylloc.first_line = yylloc.last_line = currLine - 1;\
+        yylloc.first_line = currLine;\
         yylloc.first_column = currPos;\
         currPos += yyleng;\
-        yylloc.last_column = currPos - 1;\
 
 %}
 
