@@ -146,6 +146,6 @@ int main(int argc, char** argv) {
 }
 
 void yyerror(const char* s) {
-  fprintf(stderr, "Error encountered while parsing token at [%i,%i-%i,%i]: %s\n", yylloc.first_line, yylloc.first_column, yylloc.last_line, yylloc.last_column, s);
+  fprintf(stderr, "Error encountered while parsing token at [%i,%i]: %s\n", yylloc.first_line, yylloc.first_column, s);
   exit(1);
 }

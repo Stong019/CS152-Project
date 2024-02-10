@@ -10,9 +10,9 @@
 
     #define YY_USER_ACTION \
         yylloc.first_line = yylloc.last_line = currLine - 1;\
-        yylloc.first_column = 1;\
+        yylloc.first_column = currPos - yylex;\
         currPos += yyleng;\
-        yylloc.last_column = currPos + yyleng - 1;\
+        yylloc.last_column = currPos - 1;\
 
 %}
 
@@ -22,8 +22,9 @@ COMMENT ["].*["]
 
 %%
 
-"\n" {++currLine; currPos = 1;}
-" " {}
+"\n"        {++currLine; currPos = 1;}
+" "         {++currPos;}
+"\t"        {currPos += 4;}
 
 "."         {return PERIOD;}
 
