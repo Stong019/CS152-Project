@@ -117,6 +117,19 @@ int paren_count = 0;
 
 %start functions
 
+%union {
+  char *op_value;
+  struct CodeNode *code_node;
+}
+
+%define parse.error verbose
+
+%type <code_node> parameters
+%type <code_node> functions
+%type <code_node> function
+%type <code_node> statements
+%type <code_node> statement 
+
 %%
 functions: functions function   {//printf("functions -> functions function\n");
             struct CodeNode *functions = $1;
