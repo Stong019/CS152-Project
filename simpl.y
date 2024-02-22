@@ -169,7 +169,10 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY  {//p
 
 statements: statement PERIOD statements {printf("statements -> statement PERIOD statements\n");}
         | bracestatement statements     {printf("statements -> bracestatement statements\n");}
-        | %empty                        {printf("statements -> epsilon\n");}
+        | %empty                        {//printf("statements -> epsilon\n");
+            struct CodeNode *node = new CodeNode;
+            $$ = node;
+        }
         ;
 
 statement: values        {printf("statement -> values\n");}
