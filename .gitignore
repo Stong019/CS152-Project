@@ -5,3 +5,5 @@ simpl
 simpl.output
 simpl.tab.c
 simpl.tab.h
+
+*.mil
