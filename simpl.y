@@ -118,7 +118,9 @@ int paren_count = 0;
 
 %nterm  functions function statement statements values value parameters if while declaration action bracestatement
 
-%start functions
+%nterm functions
+
+%start program
 
 %union {
   char *op_value;
@@ -134,6 +136,12 @@ int paren_count = 0;
 %type <code_node> statement 
 
 %%
+
+program: functions {
+  struct CodeNode *functions = $1;
+  printf("%s\n", functions->code.c_str());
+}
+
 functions: functions function   {//printf("functions -> functions function\n");
             struct CodeNode *functions = $1;
             struct CodeNode *function = $2;
