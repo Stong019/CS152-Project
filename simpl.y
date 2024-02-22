@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <iostream>
+#include <vector>
+
+enum Type { Integer, Array };
 
 struct CodeNode {
   std::string code;
@@ -90,7 +94,6 @@ void yyerror(const char* s);
 
 int paren_count = 0;
 %}
-%define api.value.type union
 
 %locations
 
@@ -108,8 +111,8 @@ int paren_count = 0;
 %token FUNC INT MAIN 
 %token COMMA SEMICOLON PERIOD
 
-%token NUM
-%token <char*> IDENT
+%token <op_value> NUM
+%token <op_value> IDENT
 
 %token UNKNOWN_TOKEN 
 
