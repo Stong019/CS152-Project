@@ -179,16 +179,14 @@ statements: statement PERIOD statements {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *statement = $1;
                 struct CodeNode *statements= $3;
-                node->code = statement->code + std::string("PERIOD") + std::string("\n");
-                node->code += statements->code;
+                node->code = statement->code + statements->code;
                 $$ = node;
         }
         | bracestatement statements {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *bracestatement = $1;
                 struct CodeNode *statements = $2;
-                node->code = bracestatement->code + std::string("\n");
-                node->code += statements->code;
+                node->code = bracestatement->code + statements->code;
                 $$ = node; 
         }
         | %empty {
@@ -212,19 +210,19 @@ statement: values       {
         | RETURN values {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *values = $2;
-                node->code = std::string("RETURN\n") + values->code;
+                node->code = std::string("ret ") + values->code;
                 $$ = node;
         }
         | READ value    {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *value = $2;
-                node->code = std::string("READ\n") + value->code;
+                node->code = std::string(".< ") + value->code;
                 $$ = node;
         }
         | WRITE value   {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *value = $2;
-                node->code = std::string("WRITE\n") + value->code;
+                node->code = std::string(".> ") + value->code;
                 $$ = node;
         }
         | BREAK         {
