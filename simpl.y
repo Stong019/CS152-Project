@@ -372,7 +372,16 @@ action: add             {printf("action -> add\n");}
         ;
 
 
-add: values ADD value                   {printf("add -> values ADD value\n");}
+add: values ADD value                   {
+  std:string temp = create_temp();
+  struct CodeNode node = new CodeNode;
+  struct CodeNodeadd = $1;
+  struct CodeNode *add = $3;
+  node->code = add->code + add->code // + decl_temp_code(temp);
+  node->code += std::string("+ ") + temp + std::string(", ") + add->name + std::string(", ") + add->name + std::string("\n")
+  node->name = temp;
+  $$ = node;
+}
 sub: values SUB value                   {printf("sub -> values SUB value\n");}
 mul: values MUL value                 {printf("mul -> values MUL value\n");}
 div: values DIV value                   {printf("div -> values DIV value\n");}
