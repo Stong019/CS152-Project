@@ -375,7 +375,7 @@ action: add             {printf("action -> add\n");}
 add: values ADD value                   {
   std:string temp = create_temp();
   struct CodeNode node = new CodeNode;
-  struct CodeNodeadd = $1;
+  struct CodeNode *add = $1;
   struct CodeNode *add = $3;
   node->code = add->code + add->code // + decl_temp_code(temp);
   node->code += std::string("+ ") + temp + std::string(", ") + add->name + std::string(", ") + add->name + std::string("\n")
