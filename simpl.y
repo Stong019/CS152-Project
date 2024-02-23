@@ -118,8 +118,6 @@ int paren_count = 0;
 
 %nterm  functions function statement statements values value parameters if while declaration action bracestatement
 
-%nterm functions
-
 %start program
 
 %union {
@@ -134,6 +132,25 @@ int paren_count = 0;
 %type <code_node> function
 %type <code_node> statements
 %type <code_node> statement 
+%type <code_node> bracestatement
+%type <code_node> values
+%type <code_node> value
+%type <code_node> declaration
+%type <code_node> if
+%type <code_node> while
+%type <code_node> action
+%type <code_node> add
+%type <code_node> sub
+%type <code_node> mul
+%type <code_node> div
+%type <code_node> mod
+%type <code_node> assign
+%type <code_node> less
+%type <code_node> lesseq
+%type <code_node> great
+%type <code_node> greateq
+%type <code_node> equal
+%type <code_node> notequal
 
 %%
 
