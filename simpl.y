@@ -392,7 +392,7 @@ lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL val
 great: values GREATER values            {printf("great -> values GREATER values\n");} 
 greateq: values GREATER_EQUAL values    {printf("greateq -> values GREATER_EQUAL values\n");}
 equal: values EQUAL values              {printf("equal -> values EQUAL values\n");}
-notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");}
+notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");};
 
 %%
 
