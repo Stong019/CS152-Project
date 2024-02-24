@@ -148,6 +148,10 @@ int paren_count = 0;
 %type <code_node> action
 %type <code_node> bracestatement
 %type <code_node> add
+%type <code_node> sub
+%type <code_node> mul
+%type <code_node> div
+%type <code_node> mod
 
 %%
 
@@ -379,10 +383,31 @@ action: add             {//printf("action -> add\n");
                 node->code = add->code;
                 $$ = node;
 	}
-        | sub           {printf("action -> sub\n");}
-        | mul          {printf("action -> mult\n");}
-        | div           {printf("action -> div\n");}
-        | mod           {printf("action -> mod\n");}
+        | sub           {//printf("action -> sub\n");
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *sub = $1;
+                node->code = sub->code;
+                $$ = node;
+	}
+
+        | mul           {//printf("action -> sub\n");
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *mul = $1;
+                node->code = mul->code;
+                $$ = node;
+	}
+        | div           {//printf("action -> sub\n");
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *div = $1;
+                node->code = div->code;
+                $$ = node;
+	}
+        | mod           {//printf("action -> sub\n");
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *mod = $1;
+                node->code = mod->code;
+                $$ = node;
+	}
         | assign        {printf("action -> assign\n");}
         | less          {printf("action -> less\n");}
         | lesseq        {printf("action -> lesseq\n");}
