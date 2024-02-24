@@ -86,6 +86,13 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+std::string create_temp() {
+     static int num = 0;
+     std::string value = "_temp"; //+ std::to_string(num);
+     num+=1;
+     return value;
+}
+
 extern int yylex();
 extern FILE* yyin;
 
@@ -385,7 +392,7 @@ action: add             {//printf("action -> add\n");
 
 
 add: values ADD value                   {
-  std:string temp = create_temp();
+  std::string temp = create_temp();
   struct CodeNode *node = new CodeNode;
   struct CodeNode *values = $1;
   struct CodeNode *value = $3;
