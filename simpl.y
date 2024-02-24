@@ -451,12 +451,48 @@ add: values ADD value                   {
   node->name = temp;
   $$ = node;
 }
-sub: values SUB value                   {printf("sub -> values SUB value\n");}
-mul: values MUL value                 {printf("mul -> values MUL value\n");}
-div: values DIV value                   {printf("div -> values DIV value\n");}
+sub: values SUB value                   {//printf("sub -> values SUB value\n");
+  std::string temp = create_temp();
+  struct CodeNode *node = new CodeNode;
+  struct CodeNode *values = $1;
+  struct CodeNode *value = $3;
+  node->code = values->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("- ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  node->name = temp;
+  $$ = node;
+}
+mul: values MUL value                 {//printf("mul -> values MUL value\n");
+  std::string temp = create_temp();
+  struct CodeNode *node = new CodeNode;
+  struct CodeNode *values = $1;
+  struct CodeNode *value = $3;
+  node->code = values->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("* ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  node->name = temp;
+  $$ = node;
+}
+div: values DIV value                   {//printf("div -> values DIV value\n");
+  std::string temp = create_temp();
+  struct CodeNode *node = new CodeNode;
+  struct CodeNode *values = $1;
+  struct CodeNode *value = $3;
+  node->code = values->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("/ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  node->name = temp;
+  $$ = node;
+  }
 mod: values MOD value                   {printf("mod -> values MOD value\n");}
 assign: value ASSIGN values             {printf("assign -> value ASSIGN values\n");}
-less: values LESS values                {printf("less -> values LESS values\n");}
+less: values LESS values                {//printf("less -> values LESS values\n");
+  std::string temp = create_temp();
+  struct CodeNode *node = new CodeNode;
+  struct CodeNode *values = $1;
+  struct CodeNode *values = $3;
+  node->code = values->code < values->code; // + decl_temp_code(temp);
+  node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  node->name = temp;
+  $$ = node;  
+}
 lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL values\n");}
 great: values GREATER values            {printf("great -> values GREATER values\n");} 
 greateq: values GREATER_EQUAL values    {printf("greateq -> values GREATER_EQUAL values\n");}
