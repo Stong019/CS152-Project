@@ -437,12 +437,10 @@ action: add             {//printf("action -> add\n");
 add: values ADD value                   {
   std::string temp = create_temp();
   struct CodeNode *node = new CodeNode;
-  //struct CodeNode *values = $1;
-  //struct CodeNode *value = $3;
-  node->code = $1->code + $3->code
-  //node->code = values->code + value->code; // + decl_temp_code(temp);
-  //node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
-  node->code += decl_temp(temp) + std::string("+ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+  struct CodeNode *values = $1;
+  struct CodeNode *value = $3;
+  node->code = values->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
   node->name = temp;
   $$ = node;
 }
