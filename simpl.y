@@ -152,7 +152,7 @@ int paren_count = 0;
 %type <code_node> mul
 %type <code_node> div
 %type <code_node> mod
-%type <code_node> $$
+
 
 %%
 
@@ -476,16 +476,7 @@ div: values DIV value                   {//printf("div -> values DIV value\n");
   }
 mod: values MOD value                   {printf("mod -> values MOD value\n");}
 assign: value ASSIGN values             {printf("assign -> value ASSIGN values\n");}
-less: values LESS values                {//printf("less -> values LESS values\n");
-  std::string temp = create_temp();
-  struct CodeNode *node = new CodeNode;
-  struct CodeNode *values = $1;
-  struct CodeNode *values = $3;
-  node->code = values->code < values->code; // + decl_temp_code(temp);
-  node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
-  node->name = temp;
-  $$ = node;  
-}
+less: values LESS values                {printf("less -> values LESS values\n"); }
 lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL values\n");}
 great: values GREATER values            {printf("great -> values GREATER values\n");} 
 greateq: values GREATER_EQUAL values    {printf("greateq -> values GREATER_EQUAL values\n");}
