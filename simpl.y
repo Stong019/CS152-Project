@@ -278,7 +278,8 @@ values: L_PAREN values R_PAREN    {
         |  action                 {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *action = $1;
-                node->code = action->code;
+                node->code = std::string(". temp\n")
+                node->code += action->code;
                 $$ = node;
         }
         | value                   {
@@ -313,6 +314,13 @@ value: IDENT {struct CodeNode *node = new CodeNode;
 declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
+                $$ = node;
+        }
+        | INT IDENT ASSIGN value {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *value = $4;
+                node->code = std::string(". ") + std::string($2) + std::string("\n");
+                node->code += std::string("= ") + value->code + std::string(", ") + std::string($2) + std::string("\n");
                 $$ = node;
         }
         | INT IDENT ASSIGN values {
