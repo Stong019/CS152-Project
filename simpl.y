@@ -316,19 +316,11 @@ declaration: INT IDENT {
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
         }
-        | INT IDENT ASSIGN value {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *value = $4;
-                node->code = std::string(". ") + std::string($2) + std::string("\n");
-                node->code += std::string("= ") + value->code + std::string(", ") + std::string($2) + std::string("\n");
-                $$ = node;
-        }
         | INT IDENT ASSIGN values {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *values = $4;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");
-                node->code += values->code;
-                node->code += std::string("= temp, ") + std::string($2) + std::string("\n");
+                node->code += std::string("= ") + std::string($2) + std::string(", ") + values->code + std::string("\n");
                 $$ = node;
         }
         | INT IDENT L_BRAC NUM R_BRAC {
