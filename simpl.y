@@ -152,6 +152,7 @@ int paren_count = 0;
 %type <code_node> mul
 %type <code_node> div
 %type <code_node> mod
+%type <code_node> $$
 
 %%
 
