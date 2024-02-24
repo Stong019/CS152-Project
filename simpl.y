@@ -118,6 +118,8 @@ int paren_count = 0;
 
 %nterm  functions function statement statements values value parameters if while declaration action bracestatement
 
+%nterm functions
+
 %start program
 
 %union {
@@ -132,25 +134,6 @@ int paren_count = 0;
 %type <code_node> function
 %type <code_node> statements
 %type <code_node> statement 
-%type <code_node> bracestatement
-%type <code_node> values
-%type <code_node> value
-%type <code_node> declaration
-%type <code_node> if
-%type <code_node> while
-%type <code_node> action
-%type <code_node> add
-%type <code_node> sub
-%type <code_node> mul
-%type <code_node> div
-%type <code_node> mod
-%type <code_node> assign
-%type <code_node> less
-%type <code_node> lesseq
-%type <code_node> great
-%type <code_node> greateq
-%type <code_node> equal
-%type <code_node> notequal
 
 %%
 
@@ -392,7 +375,7 @@ action: add             {printf("action -> add\n");}
 add: values ADD value                   {
   std:string temp = create_temp();
   struct CodeNode node = new CodeNode;
-  struct CodeNodeadd = $1;
+  struct CodeNode *add = $1;
   struct CodeNode *add = $3;
   node->code = add->code + add->code // + decl_temp_code(temp);
   node->code += std::string("+ ") + temp + std::string(", ") + add->name + std::string(", ") + add->name + std::string("\n")
@@ -409,7 +392,7 @@ lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL val
 great: values GREATER values            {printf("great -> values GREATER values\n");} 
 greateq: values GREATER_EQUAL values    {printf("greateq -> values GREATER_EQUAL values\n");}
 equal: values EQUAL values              {printf("equal -> values EQUAL values\n");}
-notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");}
+notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");};
 
 %%
 
