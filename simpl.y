@@ -116,9 +116,8 @@ int paren_count = 0;
 
 %token UNKNOWN_TOKEN 
 
-%nterm  functions function statement statements values value parameters if while declaration action bracestatement
+%nterm  functions function statement statements values value parameters if_stmt while_stmt declaration action bracestatement
 
-%nterm functions
 
 %start program
 
@@ -134,6 +133,14 @@ int paren_count = 0;
 %type <code_node> function
 %type <code_node> statements
 %type <code_node> statement 
+%type <code_node> values
+%type <code_node> value
+%type <code_node> if_stmt
+%type <code_node> while_stmt 
+%type <code_node> declaration
+%type <code_node> action
+%type <code_node> bracestatement
+%type <code_node> add
 
 %%
 
@@ -237,16 +244,16 @@ statement: values       {
         }
         ;
 
-bracestatement: if      {
+bracestatement: if_stmt      {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *if = $1;
-                node->code = if->code;
+                struct CodeNode *if_stmt = $1;
+                node->code = if_stmt->code;
                 $$ = node;
         }
-        | while         {
+        | while_stmt         {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *while = $1;
-                node->code = while->code;
+                struct CodeNode *while_stmt = $1;
+                node->code = while_stmt->code;
                 $$ = node;
         }
         ;
@@ -275,7 +282,7 @@ value: IDENT
         | IDENT L_PAREN parameters R_PAREN {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *parameters = $3;
-                node->code = std::string($1) + paramaters->code;
+                node->code = std::string($1) + parameters->code;
                 $$ = node;
         }
         | IDENT L_BRAC NUM R_BRAC {
@@ -319,9 +326,9 @@ declaration: INT IDENT {
 parameters: values COMMA parameters {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *values = $1;
-                struct codeNode *paramaters = $3;
+                struct CodeNode *parameters = $3;
                 node->code = values->code + std::string("COMMA");
-                node->code += paramaters->code;
+                node->code += parameters->code;
                 $$ = node;
         }
         | values {
@@ -333,9 +340,9 @@ parameters: values COMMA parameters {
         | declaration COMMA parameters  {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *declaration = $1;
-                struct codeNode *paramaters = $3;
+                struct CodeNode *parameters = $3;
                 node->code = declaration->code + std::string("COMMA");
-                node->code += paramaters->code;
+                node->code += parameters->code;
                 $$ = node;
         }
         | declaration {
@@ -350,14 +357,19 @@ parameters: values COMMA parameters {
         }
         ;
 
-if: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+if_stmt: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
         | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
         ;
 
-while: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+while_stmt: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
         ;
 
-action: add             {printf("action -> add\n");}
+action: add             {//printf("action -> add\n");
+		struct CodeNode *node = new CodeNode;
+                struct CodeNode *add = $1;
+                node->code = add->code;
+                $$ = node;
+	}
         | sub           {printf("action -> sub\n");}
         | mul          {printf("action -> mult\n");}
         | div           {printf("action -> div\n");}
@@ -374,11 +386,11 @@ action: add             {printf("action -> add\n");}
 
 add: values ADD value                   {
   std:string temp = create_temp();
-  struct CodeNode node = new CodeNode;
-  struct CodeNode *add = $1;
-  struct CodeNode *add = $3;
-  node->code = add->code + add->code // + decl_temp_code(temp);
-  node->code += std::string("+ ") + temp + std::string(", ") + add->name + std::string(", ") + add->name + std::string("\n")
+  struct CodeNode *node = new CodeNode;
+  struct CodeNode *values = $1;
+  struct CodeNode *value = $3;
+  node->code = values->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
   node->name = temp;
   $$ = node;
 }
