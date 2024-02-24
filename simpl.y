@@ -88,7 +88,7 @@ void print_symbol_table(void) {
 
 std::string create_temp() {
      static int num = 0;
-     std::string value = "_temp"; //+ std::to_string(num);
+     std::string value = "_temp" + std::to_string(num);
      num+=1;
      return value;
 }
@@ -382,7 +382,22 @@ if_stmt: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                   
         | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
         ;
 
-while_stmt: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+while_stmt: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *values = $3;
+                struct CodeNode *statements = $6;
+
+                node->code += std::string(": beginLoop\n");
+                node->code += std::string(". temp\n");
+                node->code += std::string("< temp, ") + values->code + std::string("\n");
+                node->code += std::string("?:= loopBody, temp\n");
+                node->code += std::string(":= endLoop\n");
+                node->code += std::string(": loopbody\n");
+                node->code += statements->code;
+                node->code += std::string(":= beginLoop\n");
+                node->code += std::string(": endLoop\n");
+                $$ = node;
+        }
         ;
 
 action: add             {//printf("action -> add\n");

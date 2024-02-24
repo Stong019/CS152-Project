@@ -31,4 +31,4 @@ clean:
 compile: 
 	bison -t -d -v simpl.y
 	flex simpl.lex
-	g++ lex.yy.c simpl.tab.c -ll -o simpl
+	g++ lex.yy.c simpl.tab.c -ll -std=c++11 -o simpl
