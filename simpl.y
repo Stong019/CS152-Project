@@ -278,7 +278,7 @@ values: L_PAREN values R_PAREN    {
         |  action                 {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *action = $1;
-                node->code = std::string(". temp\n")
+                node->code = std::string(". temp\n");
                 node->code += action->code;
                 $$ = node;
         }
