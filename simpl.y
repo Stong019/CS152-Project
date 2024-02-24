@@ -86,6 +86,13 @@ void print_symbol_table(void) {
   printf("--------------------\n");
 }
 
+std::string create_temp() {
+     static int num = 0;
+     std::string value = "_temp"; //+ std::to_string(num);
+     num+=1;
+     return value;
+}
+
 extern int yylex();
 extern FILE* yyin;
 
@@ -116,9 +123,8 @@ int paren_count = 0;
 
 %token UNKNOWN_TOKEN 
 
-%nterm  functions function statement statements values value parameters if while declaration action bracestatement
+%nterm  functions function statement statements values value parameters if_stmt while_stmt declaration action bracestatement
 
-%nterm functions
 
 %start program
 
@@ -134,6 +140,14 @@ int paren_count = 0;
 %type <code_node> function
 %type <code_node> statements
 %type <code_node> statement 
+%type <code_node> values
+%type <code_node> value
+%type <code_node> if_stmt
+%type <code_node> while_stmt 
+%type <code_node> declaration
+%type <code_node> action
+%type <code_node> bracestatement
+%type <code_node> add
 
 %%
 
@@ -142,20 +156,20 @@ program: functions {
   printf("%s\n", functions->code.c_str());
 }
 
-functions: functions function   {//printf("functions -> functions function\n");
+functions: functions function   {
             struct CodeNode *functions = $1;
             struct CodeNode *function = $2;
             struct CodeNode *node = new CodeNode;
             node->code = functions->code + function->code;
             $$ = node;
         }
-        |  %empty               {//printf("functions -> epsilon\n");
+        |  %empty {
             struct CodeNode *node = new CodeNode;
             $$ = node;
         }
         ;
 
-function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY  {//printf("function -> FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY\n");
+function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
             struct CodeNode *node = new CodeNode;
             struct CodeNode *parameters = $4;
             struct CodeNode *statements = $7;
@@ -165,7 +179,7 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY  {//p
             node->code += std::string("endfunc\n\n");
             $$ = node;
         }
-        | MAIN L_CURLY statements R_CURLY                                  {//printf("function -> START L_CURLY statements R_CURLY\n");
+        | MAIN L_CURLY statements R_CURLY {
             struct CodeNode *node = new CodeNode;
             struct CodeNode *statements = $3;
             node->code = std::string("func MAIN\n");
@@ -175,59 +189,194 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY  {//p
         }
         ;
 
-statements: statement PERIOD statements {printf("statements -> statement PERIOD statements\n");}
-        | bracestatement statements     {printf("statements -> bracestatement statements\n");}
-        | %empty                        {//printf("statements -> epsilon\n");
+statements: statement PERIOD statements {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *statement = $1;
+                struct CodeNode *statements= $3;
+                node->code = statement->code + statements->code;
+                $$ = node;
+        }
+        | bracestatement statements {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *bracestatement = $1;
+                struct CodeNode *statements = $2;
+                node->code = bracestatement->code + statements->code;
+                $$ = node; 
+        }
+        | %empty {
             struct CodeNode *node = new CodeNode;
             $$ = node;
         }
         ;
 
-statement: values        {printf("statement -> values\n");}
-        | declaration   {printf("statement -> declaration\n");}
-        | RETURN values {printf("statement -> RETURN values\n");}
-        | READ value    {printf("statement -> READ value\n");}
-        | WRITE value   {printf("statement -> WRITE value\n");}
-        | BREAK         {printf("statement -> BREAK\n");}
-        | CONTINUE      {printf("statement -> CONTINUE\n");}
+statement: values       {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *values = $1;
+                node->code = values->code;
+                $$ = node;
+        }
+        | declaration   {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *declaration = $1;
+                node->code = declaration->code;
+                $$ = node;
+        }
+        | RETURN values {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *values = $2;
+                node->code = std::string("ret ") + values->code;
+                $$ = node;
+        }
+        | READ value    {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *value = $2;
+                node->code = std::string(".< ") + value->code;
+                $$ = node;
+        }
+        | WRITE value   {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *value = $2;
+                node->code = std::string(".> ") + value->code;
+                $$ = node;
+        }
+        | BREAK         {
+                struct CodeNode *node = new CodeNode;
+                node->code = std::string("BREAK\n");
+                $$ = node;
+        }
+        | CONTINUE      {
+                struct CodeNode *node = new CodeNode;
+                node->code = std::string("CONTINUE\n");
+                $$ = node;
+        }
         ;
 
-bracestatement: if      {printf("bracestatement -> if\n");}
-        | while         {printf("bracestatement -> while\n");}
+bracestatement: if_stmt      {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *if_stmt = $1;
+                node->code = if_stmt->code;
+                $$ = node;
+        }
+        | while_stmt         {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *while_stmt = $1;
+                node->code = while_stmt->code;
+                $$ = node;
+        }
         ;
 
-values: L_PAREN values R_PAREN    {printf("values -> L_PAREN values R_PAREN\n");}
-        |  action                      {printf("values -> action\n");}
-        | value                     {printf("values -> value\n");}
+values: L_PAREN values R_PAREN    {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *values = $2;
+                node->code = values->code;
+                $$ = node;
+        }
+        |  action                 {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *action = $1;
+                node->code = action->code;
+                $$ = node;
+        }
+        | value                   {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *value = $1;
+                node->code = value->code;
+                $$ = node;
+        }
         ;
 
 value: IDENT
-        | IDENT L_PAREN parameters R_PAREN      {printf("value -> IDENT L_PAREN parameters R_PAREN\n");}
-        | IDENT L_BRAC NUM R_BRAC               {printf("value -> IDENT L_BRAC NUM R_BRAC\n");}
-        | NUM                                   {printf("value -> NUM\n");}
+        | IDENT L_PAREN parameters R_PAREN {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *parameters = $3;
+                node->code = std::string($1) + parameters->code;
+                $$ = node;
+        }
+        | IDENT L_BRAC NUM R_BRAC {
+                struct CodeNode *node = new CodeNode;
+                node->code = std::string($1) + std::string($3);
+                $$ = node;
+        }
+        | NUM {
+                struct CodeNode *node = new CodeNode;
+                node->code = std::string($1);
+                $$ = node;
+        }
         ;
 
-declaration: INT IDENT                                                  {printf("declaration -> INT IDENT\n");}
-        | INT IDENT ASSIGN values                                       {printf("declaration -> INT IDENT ASSIGN values\n");}
-        | INT IDENT L_BRAC NUM R_BRAC                                   {printf("declaration -> INT IDENT L_BRAC NUM R_BRAC\n");}
-        | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY     {printf("declaration -> INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY\n");}
+declaration: INT IDENT {
+                struct CodeNode *node = new CodeNode;
+                node->code = std::string("INT ") + std::string($2);
+                $$ = node;
+        }
+        | INT IDENT ASSIGN values {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *values = $4;
+                node->code = std::string("INT ") + std::string($2) + std::string("ASSIGN ");
+                node->code += values->code;
+                $$ = node;
+        }
+        | INT IDENT L_BRAC NUM R_BRAC {
+                struct CodeNode *node = new CodeNode;
+                node->code = std::string("INT ") + std::string($2) + std::string($4);
+                $$ = node;
+        }
+        | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *paramaters = $7;
+                node->code = std::string("INT ") + std::string($2) + std::string("ASSIGN ");
+                node->code = paramaters->code;
+                $$ = node;
+        }
         ;
 
-parameters: values COMMA parameters      {printf("parameters -> value COMMA parameters\n");}
-        | values                         {printf("parameters -> value\n");}
-        | declaration COMMA parameters  {printf("parameters -> declaration COMMA parameters\n");}
-        | declaration                   {printf("parameters -> declaration\n");}        
-        | %empty                        {printf("parameters -> epsilon\n");}
+parameters: values COMMA parameters {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *values = $1;
+                struct CodeNode *parameters = $3;
+                node->code = values->code + std::string("COMMA");
+                node->code += parameters->code;
+                $$ = node;
+        }
+        | values {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *values = $1;
+                node->code = values->code;
+                $$ = node;
+        }
+        | declaration COMMA parameters  {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *declaration = $1;
+                struct CodeNode *parameters = $3;
+                node->code = declaration->code + std::string("COMMA");
+                node->code += parameters->code;
+                $$ = node;
+        }
+        | declaration {
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *declaration = $1;
+                node->code = declaration->code;
+                $$ = node;
+        }        
+        | %empty {
+                struct CodeNode *node = new CodeNode;
+                $$ = node;
+        }
         ;
 
-if: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+if_stmt: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
         | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
         ;
 
-while: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
+while_stmt: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY  {printf("while -> WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
         ;
 
-action: add             {printf("action -> add\n");}
+action: add             {//printf("action -> add\n");
+		struct CodeNode *node = new CodeNode;
+                struct CodeNode *add = $1;
+                node->code = add->code;
+                $$ = node;
+	}
         | sub           {printf("action -> sub\n");}
         | mul          {printf("action -> mult\n");}
         | div           {printf("action -> div\n");}
@@ -242,7 +391,16 @@ action: add             {printf("action -> add\n");}
         ;
 
 
-add: values ADD value                   {printf("add -> values ADD value\n");}
+add: values ADD value                   {
+  std::string temp = create_temp();
+  struct CodeNode *node = new CodeNode;
+  struct CodeNode *values = $1;
+  struct CodeNode *value = $3;
+  node->code = values->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  node->name = temp;
+  $$ = node;
+}
 sub: values SUB value                   {printf("sub -> values SUB value\n");}
 mul: values MUL value                 {printf("mul -> values MUL value\n");}
 div: values DIV value                   {printf("div -> values DIV value\n");}
@@ -253,7 +411,7 @@ lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL val
 great: values GREATER values            {printf("great -> values GREATER values\n");} 
 greateq: values GREATER_EQUAL values    {printf("greateq -> values GREATER_EQUAL values\n");}
 equal: values EQUAL values              {printf("equal -> values EQUAL values\n");}
-notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");}
+notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");};
 
 %%
 
