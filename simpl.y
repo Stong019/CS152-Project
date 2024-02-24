@@ -285,7 +285,7 @@ values: L_PAREN values R_PAREN    {
         }
         ;
 
-value: IDENT
+value: IDENT {$$ = $1;}
         | IDENT L_PAREN parameters R_PAREN {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *parameters = $3;
@@ -297,28 +297,25 @@ value: IDENT
                 node->code = std::string($1) + std::string($3);
                 $$ = node;
         }
-        | NUM {
-                struct CodeNode *node = new CodeNode;
-                node->code = std::string($1);
-                $$ = node;
-        }
+        | NUM {$$ = $1;}
         ;
 
 declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
-                node->code = std::string("INT ") + std::string($2);
+                node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
         }
         | INT IDENT ASSIGN values {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *values = $4;
-                node->code = std::string("INT ") + std::string($2) + std::string("ASSIGN ");
+                node->code = std::string(". ") + std::string($2) + std::string("\n");
                 node->code += values->code;
+                node->code += std:string("= temp, ) + std::string($2) + std::string("\n");
                 $$ = node;
         }
         | INT IDENT L_BRAC NUM R_BRAC {
                 struct CodeNode *node = new CodeNode;
-                node->code = std::string("INT ") + std::string($2) + std::string($4);
+                node->code = std::string(".[] ") + std::string($2) + std::string(", ") + std::string($4);
                 $$ = node;
         }
         | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY {
