@@ -224,19 +224,19 @@ statement: values       {
         | RETURN values {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *values = $2;
-                node->code = std::string("ret ") + values->code;
+                node->code = std::string("ret ") + values->code + std::string("\n");
                 $$ = node;
         }
         | READ value    {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *value = $2;
-                node->code = std::string(".< ") + value->code;
+                node->code = std::string(".< ") + value->code + std::string("\n");
                 $$ = node;
         }
         | WRITE value   {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *value = $2;
-                node->code = std::string(".> ") + value->code;
+                node->code = std::string(".> ") + value->code + std::string("\n");
                 $$ = node;
         }
         | BREAK         {
@@ -285,7 +285,10 @@ values: L_PAREN values R_PAREN    {
         }
         ;
 
-value: IDENT {$$ = $1;}
+value: IDENT {struct CodeNode *node = new CodeNode;
+                node->code = std::string($1);
+                $$ = node;
+	}
         | IDENT L_PAREN parameters R_PAREN {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *parameters = $3;
@@ -297,7 +300,10 @@ value: IDENT {$$ = $1;}
                 node->code = std::string($1) + std::string($3);
                 $$ = node;
         }
-        | NUM {$$ = $1;}
+        | NUM {struct CodeNode *node = new CodeNode;
+		node->code = std::string($1);
+		$$ = node;
+	}
         ;
 
 declaration: INT IDENT {
@@ -310,7 +316,7 @@ declaration: INT IDENT {
                 struct CodeNode *values = $4;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");
                 node->code += values->code;
-                node->code += std:string("= temp, ) + std::string($2) + std::string("\n");
+                node->code += std::string("= temp, ") + std::string($2) + std::string("\n");
                 $$ = node;
         }
         | INT IDENT L_BRAC NUM R_BRAC {
@@ -345,8 +351,7 @@ parameters: values COMMA parameters {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *declaration = $1;
                 struct CodeNode *parameters = $3;
-                node->code = declaration->code + std::string("COMMA");
-                node->code += parameters->code;
+                node->code = declaration->code + parameters->code;
                 $$ = node;
         }
         | declaration {

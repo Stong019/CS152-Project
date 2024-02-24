@@ -2,3 +2,9 @@ START {
 b. 
 c.
 }
+
+fn TEST (#A _ #B) {
+> A.
+< B.
+<- A.
+}
