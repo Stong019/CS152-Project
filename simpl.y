@@ -157,6 +157,8 @@ int paren_count = 0;
 %type <code_node> mod
 %type <code_node> assign
 
+%type <op_value> variable
+
 %%
 
 program: functions {
@@ -235,16 +237,14 @@ statement: values       {
                 node->code = std::string("ret ") + values->code + std::string("\n");
                 $$ = node;
         }
-        | READ value    {
+        | READ IDENT    {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *value = $2;
-                node->code = std::string(".< ") + value->code + std::string("\n");
+                node->code = std::string(".< ") + std::string($2) + std::string("\n");
                 $$ = node;
         }
-        | WRITE value   {
+        | WRITE variable   {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *value = $2;
-                node->code = std::string(".> ") + value->code + std::string("\n");
+                node->code = std::string(".> ") + std::string($2) + std::string("\n");
                 $$ = node;
         }
         | BREAK         {
@@ -282,7 +282,7 @@ values: L_PAREN values R_PAREN    {
         |  action                 {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *action = $1;
-                node->code += action->code;
+                node->code = action->code;
                 $$ = node;
         }
         | value                   {
@@ -314,6 +314,10 @@ value: IDENT {struct CodeNode *node = new CodeNode;
         }
         ;
 
+
+variable: IDENT {$$ = $1;}
+	| NUM {$$ = $1;}
+	;
 
 declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
@@ -442,16 +446,18 @@ action: add             {//printf("action -> add\n");
         ;
 
 
-add: values ADD value                   {
-  std::string temp = create_temp();
-  struct CodeNode *node = new CodeNode;
-  struct CodeNode *values = $1;
-  struct CodeNode *value = $3;
-  node->code = values->code + value->code + decl_temp_code(temp);
-  node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
-  node->name = temp;
-  $$ = node;
-}
+add: variable ADD variable {
+	struct CodeNode *node = new CodeNode;
+	node->code = std::string($1) + std::string(", ") + std::string($3);
+	$$ = node;
+} 
+
+
+
+
+
+
+
 sub: values SUB value                   {//printf("sub -> values SUB value\n");
   std::string temp = create_temp();
   struct CodeNode *node = new CodeNode;
