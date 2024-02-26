@@ -237,7 +237,7 @@ statement: values       {
                 node->code = std::string("ret ") + values->code + std::string("\n");
                 $$ = node;
         }
-        | READ IDENT    {
+        | READ IDENT   {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string(".< ") + std::string($2) + std::string("\n");
                 $$ = node;
@@ -252,7 +252,7 @@ statement: values       {
                 node->code = std::string("BREAK\n");
                 $$ = node;
         }
-        | CONTINUE      {
+        | CONTINUE     {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string("CONTINUE\n");
                 $$ = node;
@@ -446,9 +446,9 @@ action: add             {//printf("action -> add\n");
         ;
 
 
-add: variable ADD variable {
+add: IDENT ASSIGN variable ADD variable {
 	struct CodeNode *node = new CodeNode;
-	node->code = std::string($1) + std::string(", ") + std::string($3);
+	node->code = std::string("+ ") +std::string($1) + std::string(", ") + std::string($3) + std::string(", ") + std::string($5) + std::string("\n");
 	$$ = node;
 } 
 
@@ -489,10 +489,9 @@ div: values DIV value                   {//printf("div -> values DIV value\n");
   $$ = node;
   }
 mod: values MOD value                   {printf("mod -> values MOD value\n");}
-assign: IDENT ASSIGN values             {//printf("assign -> value ASSIGN values\n");
+assign: IDENT ASSIGN variable             {//printf("assign -> value ASSIGN values\n");
 						struct CodeNode *node = new CodeNode;
-   					        struct CodeNode *values = $3;
-            				    	node->code = std::string("= ") + std::string($1) + std::string(", ") + values->code + std::string("\n");
+            				    	node->code = std::string("= ") + std::string($1) + std::string(", ") + std::string($3) + std::string("\n");
                					$$ = node;
 					}
 less: values LESS values                {printf("less -> values LESS values\n"); }
