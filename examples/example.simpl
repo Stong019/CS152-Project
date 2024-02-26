@@ -1,6 +1,11 @@
 START {
-b. 
-c.
+#A.
+#B.
+#C.
+A e 10.
+B e 15.
+C e A p B.
+< A.
 }
 
 fn TEST (#A _ #B) {

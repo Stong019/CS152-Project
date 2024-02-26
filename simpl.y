@@ -92,6 +92,9 @@ std::string create_temp() {
      num+=1;
      return value;
 }
+std::string decl_temp_code(std::string &temp) {
+	return std::string(". ") + temp + std:: string("\n");
+}
 
 extern int yylex();
 extern FILE* yyin;
@@ -152,7 +155,7 @@ int paren_count = 0;
 %type <code_node> mul
 %type <code_node> div
 %type <code_node> mod
-
+%type <code_node> assign
 
 %%
 
@@ -279,7 +282,6 @@ values: L_PAREN values R_PAREN    {
         |  action                 {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *action = $1;
-                node->code = std::string(". temp\n");
                 node->code += action->code;
                 $$ = node;
         }
@@ -295,6 +297,10 @@ value: IDENT {struct CodeNode *node = new CodeNode;
                 node->code = std::string($1);
                 $$ = node;
 	}
+	| NUM {struct CodeNode *node = new CodeNode;
+                node->code = std::string($1);
+                $$ = node;
+        }
         | IDENT L_PAREN parameters R_PAREN {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *parameters = $3;
@@ -306,11 +312,8 @@ value: IDENT {struct CodeNode *node = new CodeNode;
                 node->code = std::string($1) + std::string($3);
                 $$ = node;
         }
-        | NUM {struct CodeNode *node = new CodeNode;
-		node->code = std::string($1);
-		$$ = node;
-	}
         ;
+
 
 declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
@@ -424,7 +427,12 @@ action: add             {//printf("action -> add\n");
                 node->code = mod->code;
                 $$ = node;
 	}
-        | assign        {printf("action -> assign\n");}
+        | assign        {//printf("action -> assign\n");
+		struct CodeNode *node = new CodeNode;
+                struct CodeNode *assign = $1;
+                node->code = assign->code;
+                $$ = node;
+	}
         | less          {printf("action -> less\n");}
         | lesseq        {printf("action -> lesseq\n");}
         | great         {printf("action -> great\n");}
@@ -439,7 +447,7 @@ add: values ADD value                   {
   struct CodeNode *node = new CodeNode;
   struct CodeNode *values = $1;
   struct CodeNode *value = $3;
-  node->code = values->code + value->code; // + decl_temp_code(temp);
+  node->code = values->code + value->code + decl_temp_code(temp);
   node->code += std::string("+ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
   node->name = temp;
   $$ = node;
@@ -475,7 +483,12 @@ div: values DIV value                   {//printf("div -> values DIV value\n");
   $$ = node;
   }
 mod: values MOD value                   {printf("mod -> values MOD value\n");}
-assign: value ASSIGN values             {printf("assign -> value ASSIGN values\n");}
+assign: IDENT ASSIGN values             {//printf("assign -> value ASSIGN values\n");
+						struct CodeNode *node = new CodeNode;
+   					        struct CodeNode *values = $3;
+            				    	node->code = std::string("= ") + std::string($1) + std::string(", ") + values->code + std::string("\n");
+               					$$ = node;
+					}
 less: values LESS values                {printf("less -> values LESS values\n"); }
 lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL values\n");}
 great: values GREATER values            {printf("great -> values GREATER values\n");} 
