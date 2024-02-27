@@ -5,6 +5,7 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 enum Type { Integer, Array };
 
@@ -126,7 +127,7 @@ int paren_count = 0;
 
 %token UNKNOWN_TOKEN 
 
-%nterm  functions function statement statements values value parameters if_stmt while_stmt declaration action bracestatement
+%nterm  functions function statement statements expression value parameters if_stmt while_stmt declaration action bracestatement
 
 
 %start program
@@ -143,7 +144,7 @@ int paren_count = 0;
 %type <code_node> function
 %type <code_node> statements
 %type <code_node> statement 
-%type <code_node> values
+%type <code_node> expression
 %type <code_node> value
 %type <code_node> if_stmt
 %type <code_node> while_stmt 
@@ -156,8 +157,6 @@ int paren_count = 0;
 %type <code_node> div
 %type <code_node> mod
 %type <code_node> assign
-
-%type <op_value> variable
 
 %%
 
@@ -219,10 +218,10 @@ statements: statement PERIOD statements {
         }
         ;
 
-statement: values       {
+statement: expression       {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *values = $1;
-                node->code = values->code;
+                struct CodeNode *expression = $1;
+                node->code = expression->code;
                 $$ = node;
         }
         | declaration   {
@@ -231,10 +230,10 @@ statement: values       {
                 node->code = declaration->code;
                 $$ = node;
         }
-        | RETURN values {
+        | RETURN expression {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *values = $2;
-                node->code = std::string("ret ") + values->code + std::string("\n");
+                struct CodeNode *expression = $2;
+                node->code = std::string("ret ") + expression->code + std::string("\n");
                 $$ = node;
         }
         | READ IDENT   {
@@ -242,9 +241,9 @@ statement: values       {
                 node->code = std::string(".< ") + std::string($2) + std::string("\n");
                 $$ = node;
         }
-        | WRITE variable   {
+        | WRITE expression   {
                 struct CodeNode *node = new CodeNode;
-                node->code = std::string(".> ") + std::string($2) + std::string("\n");
+                node->code = std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
         }
         | BREAK         {
@@ -255,6 +254,12 @@ statement: values       {
         | CONTINUE     {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string("CONTINUE\n");
+                $$ = node;
+        }
+	| assign        {//printf("action -> assign\n");
+                struct CodeNode *node = new CodeNode;
+                struct CodeNode *assign = $1;
+                node->code = assign->code;
                 $$ = node;
         }
         ;
@@ -273,32 +278,19 @@ bracestatement: if_stmt      {
         }
         ;
 
-values: L_PAREN values R_PAREN    {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *values = $2;
-                node->code = values->code;
-                $$ = node;
-        }
-        |  action                 {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *action = $1;
-                node->code = action->code;
-                $$ = node;
-        }
-        | value                   {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *value = $1;
-                node->code = value->code;
-                $$ = node;
-        }
-        ;
+expression: L_PAREN expression R_PAREN {
+                $$ = $2;
+          }
+          | action
+          | value
+          ;
 
 value: IDENT {struct CodeNode *node = new CodeNode;
-                node->code = std::string($1);
+                node->name = std::string($1);
                 $$ = node;
 	}
 	| NUM {struct CodeNode *node = new CodeNode;
-                node->code = std::string($1);
+                node->name = std::string($1);
                 $$ = node;
         }
         | IDENT L_PAREN parameters R_PAREN {
@@ -315,20 +307,16 @@ value: IDENT {struct CodeNode *node = new CodeNode;
         ;
 
 
-variable: IDENT {$$ = $1;}
-	| NUM {$$ = $1;}
-	;
-
 declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
         }
-        | INT IDENT ASSIGN values {
+        | INT IDENT ASSIGN expression {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *values = $4;
+                struct CodeNode *expression = $4;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");
-                node->code += std::string("= ") + std::string($2) + std::string(", ") + values->code + std::string("\n");
+                node->code += std::string("= ") + std::string($2) + std::string(", ") + expression->name + std::string("\n");
                 $$ = node;
         }
         | INT IDENT L_BRAC NUM R_BRAC {
@@ -345,18 +333,18 @@ declaration: INT IDENT {
         }
         ;
 
-parameters: values COMMA parameters {
+parameters: expression COMMA parameters {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *values = $1;
+                struct CodeNode *expression = $1;
                 struct CodeNode *parameters = $3;
-                node->code = values->code + std::string("COMMA");
+                node->code = expression->code + std::string("COMMA");
                 node->code += parameters->code;
                 $$ = node;
         }
-        | values {
+        | expression {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *values = $1;
-                node->code = values->code;
+                struct CodeNode *expression = $1;
+                node->code = expression->code;
                 $$ = node;
         }
         | declaration COMMA parameters  {
@@ -378,18 +366,18 @@ parameters: values COMMA parameters {
         }
         ;
 
-if_stmt: IF L_PAREN values R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY\n");}
-        | IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN values R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
+if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY\n");}
+        | IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
         ;
 
-while_stmt: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY {
+while_stmt: WHILE L_PAREN expression R_PAREN L_CURLY statements R_CURLY {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *values = $3;
+                struct CodeNode *expression = $3;
                 struct CodeNode *statements = $6;
 
                 node->code += std::string(": beginLoop\n");
                 node->code += std::string(". temp\n");
-                node->code += std::string("< temp, ") + values->code + std::string("\n");
+                node->code += std::string("< temp, ") + expression->code + std::string("\n");
                 node->code += std::string("?:= loopBody, temp\n");
                 node->code += std::string(":= endLoop\n");
                 node->code += std::string(": loopbody\n");
@@ -400,57 +388,24 @@ while_stmt: WHILE L_PAREN values R_PAREN L_CURLY statements R_CURLY {
         }
         ;
 
-action: add             {//printf("action -> add\n");
-		struct CodeNode *node = new CodeNode;
-                struct CodeNode *add = $1;
-                node->code = add->code;
-                $$ = node;
-	}
-        | sub           {//printf("action -> sub\n");
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *sub = $1;
-                node->code = sub->code;
-                $$ = node;
-	}
-
-        | mul           {//printf("action -> sub\n");
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *mul = $1;
-                node->code = mul->code;
-                $$ = node;
-	}
-        | div           {//printf("action -> sub\n");
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *div = $1;
-                node->code = div->code;
-                $$ = node;
-	}
-        | mod           {//printf("action -> sub\n");
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *mod = $1;
-                node->code = mod->code;
-                $$ = node;
-	}
-        | assign        {//printf("action -> assign\n");
-		struct CodeNode *node = new CodeNode;
-                struct CodeNode *assign = $1;
-                node->code = assign->code;
-                $$ = node;
-	}
-        | less          {printf("action -> less\n");}
-        | lesseq        {printf("action -> lesseq\n");}
-        | great         {printf("action -> great\n");}
-        | greateq       {printf("action -> greateq\n");}
-        | equal         {printf("action -> equal\n");} 
-        | notequal      {printf("action -> notequal\n");}
-        ;
+action: add
+      | sub
+      | mul
+      | div
+      | mod 
+      | less          {printf("action -> less\n");}
+      | lesseq        {printf("action -> lesseq\n");}
+      | great         {printf("action -> great\n");}
+      | greateq       {printf("action -> greateq\n");}
+      | equal         {printf("action -> equal\n");} 
+      | notequal      {printf("action -> notequal\n");}
+      ;
 
 
-add: IDENT ASSIGN variable ADD variable {
-	struct CodeNode *node = new CodeNode;
-	node->code = std::string("+ ") +std::string($1) + std::string(", ") + std::string($3) + std::string(", ") + std::string($5) + std::string("\n");
-	$$ = node;
-} 
+add:
+
+
+ 
 
 
 
@@ -458,48 +413,84 @@ add: IDENT ASSIGN variable ADD variable {
 
 
 
-sub: values SUB value                   {//printf("sub -> values SUB value\n");
+
+
+
+
+
+ expression ADD expression {
+        std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("+ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sub: expression SUB expression                   {//printf("sub -> expression SUB value\n");
   std::string temp = create_temp();
   struct CodeNode *node = new CodeNode;
-  struct CodeNode *values = $1;
-  struct CodeNode *value = $3;
-  node->code = values->code + value->code; // + decl_temp_code(temp);
-  node->code += std::string("- ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  struct CodeNode *expr1 = $1;
+  struct CodeNode *expr2 = $3;
+  node->code = expr1->code + expr2->code + decl_temp_code(temp);
+  node->code += std::string("- ") + temp + std::string(", ") + expr1->name + std::string(", ") + expr2->name + std::string("\n");
   node->name = temp;
   $$ = node;
 }
-mul: values MUL value                 {//printf("mul -> values MUL value\n");
+mul: expression MUL expression                 {//printf("mul -> expression MUL value\n");
   std::string temp = create_temp();
   struct CodeNode *node = new CodeNode;
-  struct CodeNode *values = $1;
+  struct CodeNode *expression = $1;
   struct CodeNode *value = $3;
-  node->code = values->code + value->code; // + decl_temp_code(temp);
-  node->code += std::string("* ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  node->code = expression->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("* ") + temp + std::string(", ") + value->name + std::string(", ") + expression->name + std::string("\n");
   node->name = temp;
   $$ = node;
 }
-div: values DIV value                   {//printf("div -> values DIV value\n");
+div: expression DIV value                   {//printf("div -> expression DIV value\n");
   std::string temp = create_temp();
   struct CodeNode *node = new CodeNode;
-  struct CodeNode *values = $1;
+  struct CodeNode *expression = $1;
   struct CodeNode *value = $3;
-  node->code = values->code + value->code; // + decl_temp_code(temp);
-  node->code += std::string("/ ") + temp + std::string(", ") + value->name + std::string(", ") + values->name + std::string("\n");
+  node->code = expression->code + value->code; // + decl_temp_code(temp);
+  node->code += std::string("/ ") + temp + std::string(", ") + value->name + std::string(", ") + expression->name + std::string("\n");
   node->name = temp;
   $$ = node;
   }
-mod: values MOD value                   {printf("mod -> values MOD value\n");}
-assign: IDENT ASSIGN variable             {//printf("assign -> value ASSIGN values\n");
-						struct CodeNode *node = new CodeNode;
-            				    	node->code = std::string("= ") + std::string($1) + std::string(", ") + std::string($3) + std::string("\n");
-               					$$ = node;
-					}
-less: values LESS values                {printf("less -> values LESS values\n"); }
-lesseq: values LESS_EQUAL values        {printf("lesseq -> values LESS_EQUAL values\n");}
-great: values GREATER values            {printf("great -> values GREATER values\n");} 
-greateq: values GREATER_EQUAL values    {printf("greateq -> values GREATER_EQUAL values\n");}
-equal: values EQUAL values              {printf("equal -> values EQUAL values\n");}
-notequal: values NOT_EQUAL values       {printf("notequal -> values NOT_EQUAL values\n");};
+mod: expression MOD value                   {printf("mod -> expression MOD value\n");}
+assign: IDENT ASSIGN expression             {//printf("assign -> value ASSIGN expression\n");
+                                                struct CodeNode *node = new CodeNode;
+						node->code = $3->code;
+                                                node->code += std::string("= ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
+                                                $$ = node;
+                                        }
+
+
+
+
+	
+less: expression LESS expression                {printf("less -> expression LESS expression\n"); }
+lesseq: expression LESS_EQUAL expression        {printf("lesseq -> expression LESS_EQUAL expression\n");}
+great: expression GREATER expression            {printf("great -> expression GREATER expression\n");} 
+greateq: expression GREATER_EQUAL expression    {printf("greateq -> expression GREATER_EQUAL expression\n");}
+equal: expression EQUAL expression              {printf("equal -> expression EQUAL expression\n");}
+notequal: expression NOT_EQUAL expression       {printf("notequal -> expression NOT_EQUAL expression\n");};
 
 %%
 
