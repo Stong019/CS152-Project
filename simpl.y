@@ -191,7 +191,7 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
         | MAIN L_CURLY statements R_CURLY {
             struct CodeNode *node = new CodeNode;
             struct CodeNode *statements = $3;
-            node->code = std::string("func MAIN\n");
+            node->code = std::string("func main\n");
             node->code += statements->code;
             node->code += std::string("endfunc\n\n");
             $$ = node;
