@@ -402,78 +402,46 @@ action: add
       ;
 
 
-add:
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
- expression ADD expression {
+add: expression ADD expression {
         std::string temp = create_temp();
         CodeNode *node = new CodeNode;
         node->code = $1->code + $3->code + decl_temp_code(temp);
         node->code += std::string("+ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
         node->name = temp;
         $$ = node;
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 sub: expression SUB expression                   {//printf("sub -> expression SUB value\n");
-  std::string temp = create_temp();
-  struct CodeNode *node = new CodeNode;
-  struct CodeNode *expr1 = $1;
-  struct CodeNode *expr2 = $3;
-  node->code = expr1->code + expr2->code + decl_temp_code(temp);
-  node->code += std::string("- ") + temp + std::string(", ") + expr1->name + std::string(", ") + expr2->name + std::string("\n");
-  node->name = temp;
-  $$ = node;
+	std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("- ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
 }
 mul: expression MUL expression                 {//printf("mul -> expression MUL value\n");
-  std::string temp = create_temp();
-  struct CodeNode *node = new CodeNode;
-  struct CodeNode *expression = $1;
-  struct CodeNode *value = $3;
-  node->code = expression->code + value->code; // + decl_temp_code(temp);
-  node->code += std::string("* ") + temp + std::string(", ") + value->name + std::string(", ") + expression->name + std::string("\n");
-  node->name = temp;
-  $$ = node;
+	std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("* ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
 }
-div: expression DIV value                   {//printf("div -> expression DIV value\n");
-  std::string temp = create_temp();
-  struct CodeNode *node = new CodeNode;
-  struct CodeNode *expression = $1;
-  struct CodeNode *value = $3;
-  node->code = expression->code + value->code; // + decl_temp_code(temp);
-  node->code += std::string("/ ") + temp + std::string(", ") + value->name + std::string(", ") + expression->name + std::string("\n");
-  node->name = temp;
-  $$ = node;
-  }
-mod: expression MOD value                   {printf("mod -> expression MOD value\n");}
+div: expression DIV expression                   {//printf("div -> expression DIV value\n");
+	std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("/ ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+}
+mod: expression MOD expression                   {//printf("mod -> expression MOD value\n");
+	std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("% ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+}
 assign: IDENT ASSIGN expression             {//printf("assign -> value ASSIGN expression\n");
                                                 struct CodeNode *node = new CodeNode;
 						node->code = $3->code;
