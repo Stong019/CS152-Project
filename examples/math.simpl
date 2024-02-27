@@ -11,7 +11,7 @@ START {
     C e A s B.
     < C.
 
-    "Multiplication Outputs 2000"
+    "Multiplication Outputs 20000"
     C e A m B.
     < C.
 
@@ -23,7 +23,7 @@ START {
     C e A rem B.
     < C.
 
-    "Complex Expression ((50/5) * 3)+ 50 "
+    "Complex Expression ((50/5) * 3)+ 50 outputs 80"
     A e 50.
     B e 5.
     C e 3.

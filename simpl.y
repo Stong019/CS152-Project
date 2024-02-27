@@ -218,51 +218,45 @@ statements: statement PERIOD statements {
         }
         ;
 
-statement: expression       {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *expression = $1;
-                node->code = expression->code;
-                $$ = node;
-        }
-        | declaration   {
+statement: expression
+         | declaration   {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *declaration = $1;
                 node->code = declaration->code;
                 $$ = node;
-        }
-        | RETURN expression {
+         }
+         | RETURN expression {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *expression = $2;
-                node->code = std::string("ret ") + expression->code + std::string("\n");
+                node->code = $2->code + std::string("ret ") + $2->name + std::string("\n");
                 $$ = node;
-        }
-        | READ IDENT   {
+         }
+         | READ IDENT   {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string(".< ") + std::string($2) + std::string("\n");
                 $$ = node;
-        }
-        | WRITE expression   {
+         }
+         | WRITE expression   {
                 struct CodeNode *node = new CodeNode;
                 node->code = $2->code + std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
-        }
-        | BREAK         {
+         }
+         | BREAK         {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string("BREAK\n");
                 $$ = node;
-        }
-        | CONTINUE     {
+         }
+         | CONTINUE     {
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string("CONTINUE\n");
                 $$ = node;
-        }
-	| assign        {//printf("action -> assign\n");
+         }
+	 | assign        {//printf("action -> assign\n");
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *assign = $1;
                 node->code = assign->code;
                 $$ = node;
-        }
-        ;
+         }
+         ;
 
 bracestatement: if_stmt      {
                 struct CodeNode *node = new CodeNode;
@@ -278,9 +272,7 @@ bracestatement: if_stmt      {
         }
         ;
 
-expression: L_PAREN expression R_PAREN {
-                $$ = $2;
-          }
+expression: L_PAREN expression R_PAREN {$$ = $2;}
           | action
           | value
           ;
@@ -294,10 +286,12 @@ value: IDENT {struct CodeNode *node = new CodeNode;
                 $$ = node;
         }
         | IDENT L_PAREN parameters R_PAREN {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *parameters = $3;
-                node->code = std::string($1) + parameters->code;
-                $$ = node;
+		std::string temp = create_temp();        	
+		CodeNode *node = new CodeNode;
+       		node->code = $3->code + decl_temp_code(temp);
+        	node->code += std::string("call ") + std::string($1) + std::string(", ") + temp + std::string("\n");
+        	node->name = temp;
+        	$$ = node;
         }
         | IDENT L_BRAC NUM R_BRAC {
                 struct CodeNode *node = new CodeNode;
@@ -335,31 +329,26 @@ declaration: INT IDENT {
 
 parameters: expression COMMA parameters {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *expression = $1;
-                struct CodeNode *parameters = $3;
-                node->code = expression->code + std::string("COMMA");
-                node->code += parameters->code;
-                $$ = node;
+		std::string temp = create_temp();
+                node->code = $1->code + $3->code + decl_temp_code(temp);;
+		node->code += std::string("= ") + temp + std::string(", ") + $1->name + std::string("\n");
+                node->code += std::string("param ") + temp + std::string("\n");
+		$$ = node;
         }
         | expression {
+		struct CodeNode *node = new CodeNode;
+                std::string temp = create_temp();
+                node->code = $1->code + decl_temp_code(temp);;
+                node->code += std::string("= ") + temp + std::string(", ") + $1->name + std::string("\n");
+                node->code += std::string("param ") + temp + std::string("\n");
+		$$ = node;
+	}
+        | declaration COMMA parameters {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *expression = $1;
-                node->code = expression->code;
+                node->code = $1->code + $3->code;
                 $$ = node;
         }
-        | declaration COMMA parameters  {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *declaration = $1;
-                struct CodeNode *parameters = $3;
-                node->code = declaration->code + parameters->code;
-                $$ = node;
-        }
-        | declaration {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *declaration = $1;
-                node->code = declaration->code;
-                $$ = node;
-        }        
+        | declaration
         | %empty {
                 struct CodeNode *node = new CodeNode;
                 $$ = node;
@@ -443,11 +432,11 @@ mod: expression MOD expression                   {//printf("mod -> expression MO
         $$ = node;
 }
 assign: IDENT ASSIGN expression             {//printf("assign -> value ASSIGN expression\n");
-                                                struct CodeNode *node = new CodeNode;
-						node->code = $3->code;
-                                                node->code += std::string("= ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
-                                                $$ = node;
-                                        }
+        struct CodeNode *node = new CodeNode;
+	node->code = $3->code;
+        node->code += std::string("= ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
+        $$ = node;
+}
 
 
 
