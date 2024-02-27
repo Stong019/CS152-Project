@@ -14,5 +14,5 @@ fn TEST (#A _ #B) {
 <- A.
 #C e 5.
 
-A e B p C p D.
+< B p C p D.
 }

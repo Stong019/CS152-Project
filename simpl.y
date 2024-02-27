@@ -243,7 +243,7 @@ statement: expression       {
         }
         | WRITE expression   {
                 struct CodeNode *node = new CodeNode;
-                node->code = std::string(".> ") + $2->name + std::string("\n");
+                node->code = $2->code + std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
         }
         | BREAK         {
