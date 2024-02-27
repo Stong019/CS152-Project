@@ -97,6 +97,21 @@ std::string decl_temp_code(std::string &temp) {
 	return std::string(". ") + temp + std:: string("\n");
 }
 
+static int parameter_num = 0;
+
+void reset_parameter_num() {
+	parameter_num = 0;
+}
+
+std::string get_new_parameter_num() {
+	parameter_num++;
+	return std::string("$") + std::to_string(parameter_num - 1);
+}
+
+
+
+
+
 extern int yylex();
 extern FILE* yyin;
 
@@ -120,13 +135,14 @@ int paren_count = 0;
 %token READ WRITE
 %token WHILE IF ELSE
 %token FUNC INT MAIN 
-%token COMMA SEMICOLON PERIOD
+%token SEMICOLON PERIOD
+
+%left COMMA
 
 %token <op_value> NUM
 %token <op_value> IDENT
 
 %token UNKNOWN_TOKEN 
-
 %nterm  functions function statement statements expression value parameters if_stmt while_stmt declaration action bracestatement
 
 
@@ -139,6 +155,7 @@ int paren_count = 0;
 
 %define parse.error verbose
 
+%type <code_node> parameter_declaration
 %type <code_node> parameters
 %type <code_node> functions
 %type <code_node> function
@@ -182,6 +199,9 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
             struct CodeNode *node = new CodeNode;
             struct CodeNode *parameters = $4;
             struct CodeNode *statements = $7;
+
+	    reset_parameter_num();		
+
             node->code = std::string("func ") + std::string($2) + std::string("\n");
             node->code += parameters->code;
             node->code += statements->code;
@@ -300,18 +320,19 @@ value: IDENT {struct CodeNode *node = new CodeNode;
 
 declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
+		node->name = std::string($2);
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
         }
         | INT IDENT ASSIGN expression {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *expression = $4;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");
-                node->code += expression->code + std::string("= ") + std::string($2) + std::string(", ") + expression->name + std::string("\n");
+                node->code += $4->code + std::string("= ") + std::string($2) + std::string(", ") + $4->name + std::string("\n");
                 $$ = node;
         }
         | INT IDENT L_BRAC expression R_BRAC {
                 struct CodeNode *node = new CodeNode;
+		node->name = std::string($2);
 		node->code = $4->code;
                 node->code += std::string(".[] ") + std::string($2) + std::string(", ") + $4->name + std::string("\n");
                 $$ = node;
@@ -341,17 +362,29 @@ parameters: expression COMMA parameters {
                 node->code += std::string("param ") + temp + std::string("\n");
 		$$ = node;
 	}
-        | declaration COMMA parameters {
+        | parameter_declaration COMMA parameters {
                 struct CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code;
-                $$ = node;
+		$$ = node;
         }
-        | declaration
+        | parameter_declaration
         | %empty {
                 struct CodeNode *node = new CodeNode;
                 $$ = node;
         }
         ;
+
+
+parameter_declaration: declaration {
+		struct CodeNode *node = new CodeNode;
+                node->code = $1->code;
+                node->code += std::string("= ") + $1->name + std::string(", ") + get_new_parameter_num() + std::string("\n");
+                $$ = node;
+}
+
+
+
+
 
 if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY\n");}
         | IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
