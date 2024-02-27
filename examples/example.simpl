@@ -13,4 +13,6 @@ fn TEST (#A _ #B) {
 < B.
 <- A.
 #C e 5.
+
+A e B p C p D.
 }

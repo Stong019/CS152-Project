@@ -21,14 +21,10 @@ LEX_CFILE := lex.yy.c
 # 		./$(EXECUTABLE) < "$(ARGS)"; \
 # 	fi
 
-clean:
-	rm $(EXECUTABLE)
-	rm $(LEX_CFILE)
-	rm simpl.output
-	rm simpl.tab.c
-	rm simpl.tab.h
-
-compile: 
+all: 
 	bison -t -d -v simpl.y
 	flex simpl.lex
 	g++ lex.yy.c simpl.tab.c -ll -std=c++11 -o simpl
+
+clean:
+	-rm -f $(EXECUTABLE) $(LEX_CFILE) simpl.output simpl.tab.c simpl.tab.h
