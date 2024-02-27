@@ -218,13 +218,7 @@ statements: statement PERIOD statements {
         }
         ;
 
-statement: expression
-         | declaration   {
-                struct CodeNode *node = new CodeNode;
-                struct CodeNode *declaration = $1;
-                node->code = declaration->code;
-                $$ = node;
-         }
+statement: declaration
          | RETURN expression {
                 struct CodeNode *node = new CodeNode;
                 node->code = $2->code + std::string("ret ") + $2->name + std::string("\n");
@@ -293,11 +287,14 @@ value: IDENT {struct CodeNode *node = new CodeNode;
         	node->name = temp;
         	$$ = node;
         }
-        | IDENT L_BRAC NUM R_BRAC {
+        | IDENT L_BRAC expression R_BRAC {
                 struct CodeNode *node = new CodeNode;
-                node->code = std::string($1) + std::string($3);
+        	std::string temp = create_temp();
+                node->code = $3->code + decl_temp_code(temp);
+                node->code += std::string("=[] ") + temp + std::string(", ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
+                node->name = temp;
                 $$ = node;
-        }
+	}
         ;
 
 
@@ -313,9 +310,10 @@ declaration: INT IDENT {
                 node->code += expression->code + std::string("= ") + std::string($2) + std::string(", ") + expression->name + std::string("\n");
                 $$ = node;
         }
-        | INT IDENT L_BRAC NUM R_BRAC {
+        | INT IDENT L_BRAC expression R_BRAC {
                 struct CodeNode *node = new CodeNode;
-                node->code = std::string(".[] ") + std::string($2) + std::string(", ") + std::string($4);
+		node->code = $4->code;
+                node->code += std::string(".[] ") + std::string($2) + std::string(", ") + $4->name + std::string("\n");
                 $$ = node;
         }
         | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY {
@@ -432,11 +430,17 @@ mod: expression MOD expression                   {//printf("mod -> expression MO
         $$ = node;
 }
 assign: IDENT ASSIGN expression             {//printf("assign -> value ASSIGN expression\n");
-        struct CodeNode *node = new CodeNode;
+      	struct CodeNode *node = new CodeNode;
 	node->code = $3->code;
         node->code += std::string("= ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
         $$ = node;
-}
+      }
+      | IDENT L_BRAC expression R_BRAC ASSIGN expression {
+	struct CodeNode *node = new CodeNode;
+        node->code = $3->code + $6->code;
+        node->code += std::string("[]= ") + std::string($1) + std::string(", ") + $3->name + std::string(", ") + $6->name + std::string("\n");
+        $$ = node;
+      }
 
 
 
