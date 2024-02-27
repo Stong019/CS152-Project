@@ -316,7 +316,7 @@ declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *expression = $4;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");
-                node->code += std::string("= ") + std::string($2) + std::string(", ") + expression->name + std::string("\n");
+                node->code += expression->code + std::string("= ") + std::string($2) + std::string(", ") + expression->name + std::string("\n");
                 $$ = node;
         }
         | INT IDENT L_BRAC NUM R_BRAC {
