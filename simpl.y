@@ -260,6 +260,10 @@ statement: declaration
                 $$ = node;
          }
          | WRITE expression   {
+		//std::string variable_name = $2;
+		//if(!find(variable_name)) {
+		//	yyerror("Undeclared Variable");
+		//}
                 struct CodeNode *node = new CodeNode;
                 node->code = $2->code + std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
@@ -330,9 +334,11 @@ value: IDENT {struct CodeNode *node = new CodeNode;
 
 declaration: INT IDENT {
 		std::string variable_name = $2;
-                add_variable_to_symbol_table(variable_name, Integer);
-
                 struct CodeNode *node = new CodeNode;
+		add_variable_to_symbol_table(variable_name, Integer);		
+                if(find(variable_name)) {
+			yyerror("Duplicate variable.");
+		}
 		node->name = std::string($2);
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
