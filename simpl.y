@@ -347,7 +347,10 @@ declaration: INT IDENT {
                 $$ = node;
         }
         | INT IDENT L_BRAC expression R_BRAC {
-                struct CodeNode *node = new CodeNode;
+        	std::string variable_name = $2;
+                add_variable_to_symbol_table(variable_name, Integer);
+
+	        struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
 		node->code = $4->code;
                 node->code += std::string(".[] ") + std::string($2) + std::string(", ") + $4->name + std::string("\n");
