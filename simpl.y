@@ -193,7 +193,7 @@ program: functions {
   struct CodeNode *functions = $1;
   std::string mainFunc = "main";
   if(!find_function(mainFunc)){
-	yyerror("Main Function Not Defined\n");		
+	yyerror("Main Function Not Defined.");		
   }
   if(noErrors){
  	printf("%s\n", functions->code.c_str());
@@ -329,8 +329,9 @@ value: IDENT {struct CodeNode *node = new CodeNode;
         | IDENT L_PAREN parameters R_PAREN {
 		std::string functionName = $1;
 		if(!find_function(functionName)){
-			yyerror("Undefined Function\n");
+			yyerror("Undefined Function.");
 		}
+
 		std::string temp = create_temp();        	
 		CodeNode *node = new CodeNode;
        		node->code = $3->code + decl_temp_code(temp);
