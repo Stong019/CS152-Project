@@ -302,6 +302,11 @@ expression: L_PAREN expression R_PAREN {$$ = $2;}
 
 value: IDENT {struct CodeNode *node = new CodeNode;
                 node->name = std::string($1);
+
+		if (!find(node->name)) {
+                        yyerror("Undeclared variable.");
+                }				
+
                 $$ = node;
 	}
 	| NUM {struct CodeNode *node = new CodeNode;
@@ -329,7 +334,10 @@ value: IDENT {struct CodeNode *node = new CodeNode;
 
 declaration: INT IDENT {
 		std::string variable_name = $2;
-                add_variable_to_symbol_table(variable_name, Integer);
+               	if (find(variable_name)) {
+			yyerror("Duplicate variable.");
+		}
+		add_variable_to_symbol_table(variable_name, Integer);
 
                 struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
@@ -338,6 +346,9 @@ declaration: INT IDENT {
         }
         | INT IDENT ASSIGN expression {
 		std::string variable_name = $2;
+		if (find(variable_name)) {
+                        yyerror("Duplicate variable.");
+                }
                 add_variable_to_symbol_table(variable_name, Integer);
 
                 struct CodeNode *node = new CodeNode;
@@ -347,6 +358,9 @@ declaration: INT IDENT {
         }
         | INT IDENT L_BRAC expression R_BRAC {
         	std::string variable_name = $2;
+		if (find(variable_name)) {
+                        yyerror("Duplicate variable.");
+                }
                 add_variable_to_symbol_table(variable_name, Integer);
 
 	        struct CodeNode *node = new CodeNode;
