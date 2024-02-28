@@ -4,5 +4,10 @@ lex.yy.c
 simpl
 simpl.output
 simpl.tab.c
+<<<<<<< HEAD
 simpl.tab.h
-mil_run
+
+*.mil
+=======
+simpl.tab.h
+>>>>>>> 86de0d22da832dc86386be99acb20cd562f61846

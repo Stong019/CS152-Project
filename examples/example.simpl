@@ -1,3 +1,18 @@
 START {
+#A.
+#B.
+#C.
+A e 10.
+B e 15.
+C e A p B.
+< A.
+}
 
+fn TEST (#A _ #B) {
+> A.
+< B.
+<- A.
+#C e 5.
+
+< B p C p D.
 }
