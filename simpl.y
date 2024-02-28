@@ -364,11 +364,11 @@ declaration: INT IDENT {
         }
         ;
 
-parameters: expression COMMA parameters {
+parameters: parameters COMMA expression {
                 struct CodeNode *node = new CodeNode;
 		std::string temp = create_temp();
-                node->code = $1->code + $3->code + decl_temp_code(temp);;
-		node->code += std::string("= ") + temp + std::string(", ") + $1->name + std::string("\n");
+                node->code = $3->code + $1->code + decl_temp_code(temp);
+		node->code += std::string("= ") + temp + std::string(", ") + $3->name + std::string("\n");
                 node->code += std::string("param ") + temp + std::string("\n");
 		$$ = node;
         }
