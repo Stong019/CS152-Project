@@ -1,7 +1,60 @@
+func ADD
+. A
+= A, $0
+. B
+= B, $1
+. _temp0
++ _temp0, A, B
+ret _temp0
+endfunc
+
+func MULT
+. A
+= A, $0
+. B
+= B, $1
+. _temp1
+* _temp1, A, B
+ret _temp1
+endfunc
+
 func main
-. n
-= n, 150
-.> n
+. A
+. _temp2
+= _temp2, 10
+param _temp2
+. _temp3
+= _temp3, 2
+param _temp3
+. _temp4
+call ADD, _temp4
+= A, _temp4
+.> A
+. B
+. _temp6
++ _temp6, A, B
+. _temp5
+= _temp5, A
+param _temp5
+. _temp7
+= _temp7, _temp6
+param _temp7
+. _temp8
+call MULT, _temp8
+= B, _temp8
+.> B
 endfunc
 
 
+symbol table:
+--------------------
+function: ADD
+  locals: A
+  locals: B
+function: MULT
+  locals: A
+  locals: B
+function: main
+  locals: A
+  locals: B
+--------------------
