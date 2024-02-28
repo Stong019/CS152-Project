@@ -197,19 +197,16 @@ functions: functions function   {
         ;
 
 function: function_header L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
-            struct CodeNode *node = new CodeNode;
-            struct CodeNode *parameters = $3;
-            struct CodeNode *statements = $6;
+	    struct CodeNode *node = new CodeNode;
 
 	    reset_parameter_num();		
 
             node->code = std::string("func ") + $1->name + std::string("\n");
-            node->code += parameters->code;
-            node->code += statements->code;
+            node->code += $3->code + $6->code;
             node->code += std::string("endfunc\n\n");
             $$ = node;
         }
-        | MAIN L_CURLY statements R_CURLY {
+        | function_header L_CURLY statements R_CURLY {
             struct CodeNode *node = new CodeNode;
             struct CodeNode *statements = $3;
             node->code = std::string("func main\n");
@@ -220,12 +217,16 @@ function: function_header L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
         ;
 
 function_header: FUNC IDENT {
-	struct CodeNode *node = new CodeNode;
-	node->name = std::string($2);
-	std::string function_name = $2;
-	add_function_to_symbol_table(function_name);
-	$$ = node;
-}
+		struct CodeNode *node = new CodeNode;
+		node->name = std::string($2);
+		std::string function_name = $2;
+		add_function_to_symbol_table(function_name);
+		$$ = node;
+	       }
+	       | MAIN {
+		std::string function_name = "main";
+                add_function_to_symbol_table(function_name);
+	       }
 
 statements: statement PERIOD statements {
                 struct CodeNode *node = new CodeNode;
@@ -328,16 +329,18 @@ value: IDENT {struct CodeNode *node = new CodeNode;
 
 
 declaration: INT IDENT {
-                struct CodeNode *node = new CodeNode;
-
 		std::string variable_name = $2;
-		add_variable_to_symbol_table(variable_name, Integer);		
+                add_variable_to_symbol_table(variable_name, Integer);
 
+                struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
         }
         | INT IDENT ASSIGN expression {
+		std::string variable_name = $2;
+                add_variable_to_symbol_table(variable_name, Integer);
+
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");
                 node->code += $4->code + std::string("= ") + std::string($2) + std::string(", ") + $4->name + std::string("\n");
