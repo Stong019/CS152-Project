@@ -24,12 +24,8 @@ fn MULT (#A _ #B){
 }
 
 START {
-    "#D e MOD(100 _ 2)."
-    "< D."
     #A e ADD(10 _ 2).
     < A.
     #B e MULT(A _ A p B).
     < B.
-    "#C e DIV(20 _ 10)."
-    "< C."
 }
