@@ -191,6 +191,10 @@ int paren_count = 0;
 
 program: functions {
   struct CodeNode *functions = $1;
+  std::string mainFunc = "main";
+  if(!find_function(mainFunc)){
+	yyerror("Main Function Not Defined\n");		
+  }
   if(noErrors){
  	printf("%s\n", functions->code.c_str());
   }
