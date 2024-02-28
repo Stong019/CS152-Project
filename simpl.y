@@ -9,6 +9,8 @@
 
 enum Type { Integer, Array };
 
+bool noErrors = true;
+
 struct CodeNode {
   std::string code;
   std::string name;
@@ -53,6 +55,16 @@ bool find(std::string &value) {
     }
   }
   return false;
+}
+
+//similar to the find() func above that finds varibles in symbol table but for function
+bool find_function(const std::string& functionName) {
+    for (std::vector<Function>::const_iterator it = symbol_table.begin(); it != symbol_table.end(); ++it) {
+        if (it->name == functionName) {
+            return true; // Function found
+        }
+    }
+    return false; // Function not found
 }
 
 // when you see a function declaration inside the grammar, add
@@ -179,7 +191,9 @@ int paren_count = 0;
 
 program: functions {
   struct CodeNode *functions = $1;
-  printf("%s\n", functions->code.c_str());
+  if(noErrors){
+ 	printf("%s\n", functions->code.c_str());
+  }
 }
 
 functions: functions function   {
@@ -309,6 +323,10 @@ value: IDENT {struct CodeNode *node = new CodeNode;
                 $$ = node;
         }
         | IDENT L_PAREN parameters R_PAREN {
+		std::string functionName = $1;
+		if(!find_function(functionName)){
+			yyerror("Undefined Function\n");
+		}
 		std::string temp = create_temp();        	
 		CodeNode *node = new CodeNode;
        		node->code = $3->code + decl_temp_code(temp);
@@ -521,10 +539,13 @@ int main(int argc, char** argv) {
   }
 
   yyparse();
-  print_symbol_table();
+  if(noErrors){
+	print_symbol_table();
+  }
 }
 
 void yyerror(const char* s) {
   fprintf(stderr, "Error encountered while parsing token at [%i,%i]: %s\n", yylloc.first_line, yylloc.first_column, s);
-  exit(1);
+  noErrors = false;	  
+  //exit(1);
 }
