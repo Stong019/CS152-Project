@@ -5,7 +5,7 @@ START {
 A e 10.
 B e 15.
 C e A p B.
-< A.
+< C.
 }
 
 fn TEST (#A _ #B) {
