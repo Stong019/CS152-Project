@@ -296,7 +296,7 @@ bracestatement: if_stmt      {
         | while_stmt         {
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *while_stmt = $1;
-                node->code = while_stmt->code;
+               node->code = while_stmt->code;
                 $$ = node;
         }
         ;
@@ -307,7 +307,13 @@ expression: L_PAREN expression R_PAREN {$$ = $2;}
           ;
 
 value: IDENT {struct CodeNode *node = new CodeNode;
-                node->name = std::string($1);
+                std::string x = $1;
+		if(!find(x)){
+			yyerror("Variable not defined");
+		}
+		//if(find(x, Integer)){
+		//	yyerror("Integer variable used as an array");
+		//}
                 $$ = node;
 	}
 	| NUM {struct CodeNode *node = new CodeNode;
