@@ -155,7 +155,6 @@ int paren_count = 0;
 
 %define parse.error verbose
 
-%type <code_node> parameter_declaration
 %type <code_node> parameters
 %type <code_node> functions
 %type <code_node> function
@@ -365,11 +364,11 @@ declaration: INT IDENT {
         }
         ;
 
-parameters: expression COMMA parameters {
+parameters: parameters COMMA expression {
                 struct CodeNode *node = new CodeNode;
 		std::string temp = create_temp();
-                node->code = $1->code + $3->code + decl_temp_code(temp);;
-		node->code += std::string("= ") + temp + std::string(", ") + $1->name + std::string("\n");
+                node->code = $3->code + $1->code + decl_temp_code(temp);
+		node->code += std::string("= ") + temp + std::string(", ") + $3->name + std::string("\n");
                 node->code += std::string("param ") + temp + std::string("\n");
 		$$ = node;
         }
@@ -381,12 +380,18 @@ parameters: expression COMMA parameters {
                 node->code += std::string("param ") + temp + std::string("\n");
 		$$ = node;
 	}
-        | parameter_declaration COMMA parameters {
+        | parameters COMMA declaration {
                 struct CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code;
+		node->code += std::string("= ") + $3->name + std::string(", ") + get_new_parameter_num() + std::string("\n");
 		$$ = node;
         }
-        | parameter_declaration
+        | declaration {
+		struct CodeNode *node = new CodeNode;
+                node->code = $1->code;
+                node->code += std::string("= ") + $1->name + std::string(", ") + get_new_parameter_num() + std::string("\n");
+                $$ = node;
+	}
         | %empty {
                 struct CodeNode *node = new CodeNode;
                 $$ = node;
@@ -394,12 +399,6 @@ parameters: expression COMMA parameters {
         ;
 
 
-parameter_declaration: declaration {
-		struct CodeNode *node = new CodeNode;
-                node->code = $1->code;
-                node->code += std::string("= ") + $1->name + std::string(", ") + get_new_parameter_num() + std::string("\n");
-                $$ = node;
-}
 
 
 
