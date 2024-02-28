@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 enum Type { Integer, Array };
 
@@ -354,8 +355,17 @@ declaration: INT IDENT {
         }
         | INT IDENT L_BRAC expression R_BRAC {
         	std::string variable_name = $2;
-                add_variable_to_symbol_table(variable_name, Integer);
-
+        	std::string sz = $4->name;        
+		if(find(variable_name)){
+			yyerror("Array already defined");
+		}
+		int arrSz;
+		std::stringstream ss(sz);
+		if(!(ss >> arrSz) || arrSz <= 0){
+			yyerror("Invalid array size");
+		}
+		add_variable_to_symbol_table(variable_name, Integer);
+		
 	        struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
 		node->code = $4->code;
