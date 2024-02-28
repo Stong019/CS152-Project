@@ -174,6 +174,7 @@ int paren_count = 0;
 %type <code_node> div
 %type <code_node> mod
 %type <code_node> assign
+%type <code_node> function_header
 
 %%
 
@@ -195,14 +196,14 @@ functions: functions function   {
         }
         ;
 
-function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
+function: function_header L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
             struct CodeNode *node = new CodeNode;
-            struct CodeNode *parameters = $4;
-            struct CodeNode *statements = $7;
+            struct CodeNode *parameters = $3;
+            struct CodeNode *statements = $6;
 
 	    reset_parameter_num();		
 
-            node->code = std::string("func ") + std::string($2) + std::string("\n");
+            node->code = std::string("func ") + $1->name + std::string("\n");
             node->code += parameters->code;
             node->code += statements->code;
             node->code += std::string("endfunc\n\n");
@@ -217,6 +218,14 @@ function: FUNC IDENT L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
             $$ = node;
         }
         ;
+
+function_header: FUNC IDENT {
+	struct CodeNode *node = new CodeNode;
+	node->name = std::string($2);
+	std::string function_name = $2;
+	add_function_to_symbol_table(function_name);
+	$$ = node;
+}
 
 statements: statement PERIOD statements {
                 struct CodeNode *node = new CodeNode;
@@ -320,6 +329,10 @@ value: IDENT {struct CodeNode *node = new CodeNode;
 
 declaration: INT IDENT {
                 struct CodeNode *node = new CodeNode;
+
+		std::string variable_name = $2;
+		add_variable_to_symbol_table(variable_name, Integer);		
+
 		node->name = std::string($2);
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
@@ -502,8 +515,8 @@ int main(int argc, char** argv) {
     interactive = false;
   }
 
-  return yyparse();
-
+  yyparse();
+  print_symbol_table();
 }
 
 void yyerror(const char* s) {
