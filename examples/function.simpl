@@ -26,6 +26,7 @@ fn MULT (#A _ #B){
 START {
     #A e ADD(10 _ 2).
     < A.
-    #B e MULT(A _ A p B).
+    #B e 0.
+    B e MULT(A _ A p B).
     < B.
 }
