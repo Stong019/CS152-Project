@@ -72,6 +72,11 @@ bool find_function(const std::string& functionName) {
     return false; // Function not found
 }
 
+void keyword_error(const char* s){
+  printf("ERROR: %s",s);
+  exit(1);   
+}
+
 //iterates through the keywords Vector
 bool check_keywords(const std::string& name){
     return std::find(reservedKeywords.begin(), reservedKeywords.end(), name) != reservedKeywords.end();
@@ -81,7 +86,7 @@ bool check_keywords(const std::string& name){
 // the function name to the symbol table
 void add_function_to_symbol_table(std::string &value) {
   if(check_keywords(value)) {
-    yyerror("Error: '" + value +  "' is a reserved keyword and cannot be used as a function name.\n");
+      keyword_error("reserved keyword and cannot be used as a function name.\n");
   }
   Function f; 
   f.name = value; 
@@ -92,7 +97,7 @@ void add_function_to_symbol_table(std::string &value) {
 // the symbol name as well as some type information to the symbol table
 void add_variable_to_symbol_table(std::string &value, Type t) {
   if(check_keywords(value)) {
-    yyerror("Error: '" + value +  "' is a reserved keyword and cannot be used as a variable name.\n");
+    keyword_error("reserved keyword and cannot be used as a variable name.\n");
   }
   Symbol s;
   s.name = value;
