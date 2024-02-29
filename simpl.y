@@ -265,6 +265,7 @@ statement: declaration
 		//if(!find(variable_name)) {
 		//	yyerror("Undeclared Variable");
 		//}
+		//#1
                 struct CodeNode *node = new CodeNode;
                 node->code = $2->code + std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
@@ -310,7 +311,7 @@ value: IDENT {struct CodeNode *node = new CodeNode;
                 std::string x = $1;
 		if(!find(x)){
 			yyerror("Variable not defined");
-		}
+		}//need to create array
 		//if(find(x, Integer)){
 		//	yyerror("Integer variable used as an array");
 		//}
