@@ -57,6 +57,19 @@ bool find(std::string &value) {
   return false;
 }
 
+// returns variable type
+Type get_type(std::string &value) {
+  Function *f = get_function();
+  Type type;
+  for(int i=0; i < f->declarations.size(); i++) {
+    Symbol *s = &f->declarations[i];
+    if (s->name == value) {
+      type = s->type;
+    }
+  }
+  return type;
+}
+
 //similar to the find() func above that finds varibles in symbol table but for function
 bool find_function(const std::string& functionName) {
     for (std::vector<Function>::const_iterator it = symbol_table.begin(); it != symbol_table.end(); ++it) {
@@ -313,7 +326,10 @@ value: IDENT {
                 node->name = std::string($1);
 		if (!find(node->name)) {
                         yyerror("Undeclared variable.");
-                }				
+                }	
+		else if (get_type(node->name) == Array) {
+			yyerror("Not specifying array index.");
+		}			
 
                 $$ = node;
 	}
@@ -337,6 +353,15 @@ value: IDENT {
         }
         | IDENT L_BRAC expression R_BRAC {
                 struct CodeNode *node = new CodeNode;
+		std::string variable_name = $1;
+		if (!find(variable_name)) {
+                        yyerror("Undeclared variable.");
+                }
+		else if (get_type(variable_name) == Integer) {
+                        yyerror("Accessing index on non-array variable.");
+                }
+
+
         	std::string temp = create_temp();
                 node->code = $3->code + decl_temp_code(temp);
                 node->code += std::string("=[] ") + temp + std::string(", ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
@@ -375,7 +400,7 @@ declaration: INT IDENT {
 		if (find(variable_name)) {
                         yyerror("Duplicate variable.");
                 }
-                add_variable_to_symbol_table(variable_name, Integer);
+                add_variable_to_symbol_table(variable_name, Array);
 
 	        struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
