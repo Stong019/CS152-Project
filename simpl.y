@@ -10,6 +10,8 @@
 
 enum Type { Integer, Array };
 
+bool noErrors = true;
+
 struct CodeNode {
   std::string code;
   std::string name;
@@ -54,6 +56,29 @@ bool find(std::string &value) {
     }
   }
   return false;
+}
+
+// returns variable type
+Type get_type(std::string &value) {
+  Function *f = get_function();
+  Type type;
+  for(int i=0; i < f->declarations.size(); i++) {
+    Symbol *s = &f->declarations[i];
+    if (s->name == value) {
+      type = s->type;
+    }
+  }
+  return type;
+}
+
+//similar to the find() func above that finds varibles in symbol table but for function
+bool find_function(const std::string& functionName) {
+    for (std::vector<Function>::const_iterator it = symbol_table.begin(); it != symbol_table.end(); ++it) {
+        if (it->name == functionName) {
+            return true; // Function found
+        }
+    }
+    return false; // Function not found
 }
 
 // when you see a function declaration inside the grammar, add
@@ -156,7 +181,6 @@ int paren_count = 0;
 
 %define parse.error verbose
 
-%type <code_node> parameter_declaration
 %type <code_node> parameters
 %type <code_node> functions
 %type <code_node> function
@@ -181,14 +205,18 @@ int paren_count = 0;
 
 program: functions {
   struct CodeNode *functions = $1;
-  printf("%s\n", functions->code.c_str());
+  std::string mainFunc = "main";
+  if(!find_function(mainFunc)){
+	yyerror("Main function not defined.");		
+  }
+  if(noErrors){
+ 	printf("%s\n", functions->code.c_str());
+  }
 }
 
 functions: functions function   {
-            struct CodeNode *functions = $1;
-            struct CodeNode *function = $2;
             struct CodeNode *node = new CodeNode;
-            node->code = functions->code + function->code;
+            node->code = $1->code + $2->code;
             $$ = node;
         }
         |  %empty {
@@ -209,9 +237,8 @@ function: function_header L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
         }
         | function_header L_CURLY statements R_CURLY {
             struct CodeNode *node = new CodeNode;
-            struct CodeNode *statements = $3;
             node->code = std::string("func main\n");
-            node->code += statements->code;
+            node->code += $3->code;
             node->code += std::string("endfunc\n\n");
             $$ = node;
         }
@@ -229,18 +256,14 @@ function_header: FUNC IDENT {
                 add_function_to_symbol_table(function_name);
 	       }
 
-statements: statement PERIOD statements {
+statements: statements statement PERIOD {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *statement = $1;
-                struct CodeNode *statements= $3;
-                node->code = statement->code + statements->code;
+                node->code = $1->code + $2->code;
                 $$ = node;
         }
-        | bracestatement statements {
+        | statements bracestatement {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *bracestatement = $1;
-                struct CodeNode *statements = $2;
-                node->code = bracestatement->code + statements->code;
+                node->code = $1->code + $2->code;
                 $$ = node; 
         }
         | %empty {
@@ -282,22 +305,19 @@ statement: declaration
          }
 	 | assign        {//printf("action -> assign\n");
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *assign = $1;
-                node->code = assign->code;
+                node->code = $1->code;
                 $$ = node;
          }
          ;
 
 bracestatement: if_stmt      {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *if_stmt = $1;
-                node->code = if_stmt->code;
+                node->code = $1->code;
                 $$ = node;
         }
         | while_stmt         {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *while_stmt = $1;
-               node->code = while_stmt->code;
+                node->code = $1->code;
                 $$ = node;
         }
         ;
@@ -307,21 +327,29 @@ expression: L_PAREN expression R_PAREN {$$ = $2;}
           | value
           ;
 
-value: IDENT {struct CodeNode *node = new CodeNode;
-                std::string x = $1;
-		if(!find(x)){
-			yyerror("Variable not defined");
-		}//need to create array
-		//if(find(x, Integer)){
-		//	yyerror("Integer variable used as an array");
-		//}
+value: IDENT {
+		struct CodeNode *node = new CodeNode;
+                node->name = std::string($1);
+		if (!find(node->name)) {
+                        yyerror("Undeclared variable.");
+                }	
+		else if (get_type(node->name) == Array) {
+			yyerror("Not specifying array index.");
+		}			
+
                 $$ = node;
 	}
-	| NUM {struct CodeNode *node = new CodeNode;
+	| NUM {
+		struct CodeNode *node = new CodeNode;
                 node->name = std::string($1);
                 $$ = node;
         }
         | IDENT L_PAREN parameters R_PAREN {
+		std::string functionName = $1;
+		if(!find_function(functionName)){
+			yyerror("Undefined function.");
+		}
+
 		std::string temp = create_temp();        	
 		CodeNode *node = new CodeNode;
        		node->code = $3->code + decl_temp_code(temp);
@@ -331,6 +359,15 @@ value: IDENT {struct CodeNode *node = new CodeNode;
         }
         | IDENT L_BRAC expression R_BRAC {
                 struct CodeNode *node = new CodeNode;
+		std::string variable_name = $1;
+		if (!find(variable_name)) {
+                        yyerror("Undeclared variable.");
+                }
+		else if (get_type(variable_name) == Integer) {
+                        yyerror("Accessing index on non-array variable.");
+                }
+
+
         	std::string temp = create_temp();
                 node->code = $3->code + decl_temp_code(temp);
                 node->code += std::string("=[] ") + temp + std::string(", ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
@@ -342,6 +379,12 @@ value: IDENT {struct CodeNode *node = new CodeNode;
 
 declaration: INT IDENT {
 		std::string variable_name = $2;
+
+               	if (find(variable_name)) {
+			yyerror("Duplicate variable.");
+		}
+		add_variable_to_symbol_table(variable_name, Integer);
+
                 struct CodeNode *node = new CodeNode;
 		add_variable_to_symbol_table(variable_name, Integer);		
                 if(find(variable_name)) {
@@ -353,6 +396,9 @@ declaration: INT IDENT {
         }
         | INT IDENT ASSIGN expression {
 		std::string variable_name = $2;
+		if (find(variable_name)) {
+                        yyerror("Duplicate variable.");
+                }
                 add_variable_to_symbol_table(variable_name, Integer);
 
                 struct CodeNode *node = new CodeNode;
@@ -362,16 +408,17 @@ declaration: INT IDENT {
         }
         | INT IDENT L_BRAC expression R_BRAC {
         	std::string variable_name = $2;
+
         	std::string sz = $4->name;        
 		if(find(variable_name)){
-			yyerror("Array already defined");
+			                 yyerror("Duplicate variable.");
 		}
 		int arrSz;
 		std::stringstream ss(sz);
 		if(!(ss >> arrSz) || arrSz <= 0){
-			yyerror("Invalid array size");
+			yyerror("Invalid array size.");
 		}
-		add_variable_to_symbol_table(variable_name, Integer);
+		add_variable_to_symbol_table(variable_name, Array);
 		
 	        struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
@@ -388,11 +435,11 @@ declaration: INT IDENT {
         }
         ;
 
-parameters: expression COMMA parameters {
+parameters: parameters COMMA expression {
                 struct CodeNode *node = new CodeNode;
 		std::string temp = create_temp();
-                node->code = $1->code + $3->code + decl_temp_code(temp);;
-		node->code += std::string("= ") + temp + std::string(", ") + $1->name + std::string("\n");
+                node->code = $3->code + $1->code + decl_temp_code(temp);
+		node->code += std::string("= ") + temp + std::string(", ") + $3->name + std::string("\n");
                 node->code += std::string("param ") + temp + std::string("\n");
 		$$ = node;
         }
@@ -404,12 +451,18 @@ parameters: expression COMMA parameters {
                 node->code += std::string("param ") + temp + std::string("\n");
 		$$ = node;
 	}
-        | parameter_declaration COMMA parameters {
+        | parameters COMMA declaration {
                 struct CodeNode *node = new CodeNode;
                 node->code = $1->code + $3->code;
+		node->code += std::string("= ") + $3->name + std::string(", ") + get_new_parameter_num() + std::string("\n");
 		$$ = node;
         }
-        | parameter_declaration
+        | declaration {
+		struct CodeNode *node = new CodeNode;
+                node->code = $1->code;
+                node->code += std::string("= ") + $1->name + std::string(", ") + get_new_parameter_num() + std::string("\n");
+                $$ = node;
+	}
         | %empty {
                 struct CodeNode *node = new CodeNode;
                 $$ = node;
@@ -417,12 +470,6 @@ parameters: expression COMMA parameters {
         ;
 
 
-parameter_declaration: declaration {
-		struct CodeNode *node = new CodeNode;
-                node->code = $1->code;
-                node->code += std::string("= ") + $1->name + std::string(", ") + get_new_parameter_num() + std::string("\n");
-                $$ = node;
-}
 
 
 
@@ -545,10 +592,13 @@ int main(int argc, char** argv) {
   }
 
   yyparse();
-  print_symbol_table();
+  if(noErrors){
+	print_symbol_table();
+  }
 }
 
 void yyerror(const char* s) {
   fprintf(stderr, "Error encountered while parsing token at [%i,%i]: %s\n", yylloc.first_line, yylloc.first_column, s);
-  exit(1);
+  noErrors = false;	  
+  //exit(1);
 }

@@ -1,4 +1,4 @@
-START {
+fn sSTART () {
 #A.
 #B.
 #C.
@@ -6,6 +6,7 @@ A e 10.
 B e 15.
 C e A p B.
 < C.
+#A.
 }
 
 fn TEST (#A _ #B) {
@@ -13,7 +14,6 @@ fn TEST (#A _ #B) {
 < B.
 <- A.
 #C e 5.
-#D.
-
+< YOLO().
 < B p C p D.
 }
