@@ -11,6 +11,11 @@ enum Type { Integer, Array };
 
 bool noErrors = true;
 
+std::vector<std::string> reservedKeywords = {
+        "fn", "b", "c", "p", "s", "m", "d", "rem", "e", 
+        "It", "leq", "gt", "geq", "is", "ne", "START"
+};
+
 struct CodeNode {
   std::string code;
   std::string name;
@@ -67,9 +72,17 @@ bool find_function(const std::string& functionName) {
     return false; // Function not found
 }
 
+//iterates through the keywords Vector
+bool check_keywords(const std::string& name){
+    return std::find(reservedKeywords.begin(), reservedKeywords.end(), name) != reservedKeywords.end();
+}
+
 // when you see a function declaration inside the grammar, add
 // the function name to the symbol table
 void add_function_to_symbol_table(std::string &value) {
+  if(check_keywords(value)) {
+    yyerror("Error: '" + value +  "' is a reserved keyword and cannot be used as a function name.\n");
+  }
   Function f; 
   f.name = value; 
   symbol_table.push_back(f);
@@ -78,6 +91,9 @@ void add_function_to_symbol_table(std::string &value) {
 // when you see a symbol declaration inside the grammar, add
 // the symbol name as well as some type information to the symbol table
 void add_variable_to_symbol_table(std::string &value, Type t) {
+  if(check_keywords(value)) {
+    yyerror("Error: '" + value +  "' is a reserved keyword and cannot be used as a variable name.\n");
+  }
   Symbol s;
   s.name = value;
   s.type = t;
@@ -106,7 +122,7 @@ std::string create_temp() {
      return value;
 }
 std::string decl_temp_code(std::string &temp) {
-	return std::string(". ") + temp + std:: string("\n");
+    return std::string(". ") + temp + std:: string("\n");
 }
 
 static int parameter_num = 0;
