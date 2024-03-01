@@ -13,7 +13,7 @@ bool noErrors = true;
 
 std::vector<std::string> reservedKeywords = {
         "fn", "b", "c", "p", "s", "m", "d", "rem", "e", 
-        "It", "leq", "gt", "geq", "is", "ne", "START"
+        "lt", "leq", "gt", "geq", "is", "ne", "START"
 };
 
 struct CodeNode {
@@ -72,10 +72,6 @@ bool find_function(const std::string& functionName) {
     return false; // Function not found
 }
 
-void keyword_error(const char* s){
-  printf("ERROR: %s",s);
-  exit(1);   
-}
 
 //iterates through the keywords Vector
 bool check_keywords(const std::string& name){
@@ -85,9 +81,6 @@ bool check_keywords(const std::string& name){
 // when you see a function declaration inside the grammar, add
 // the function name to the symbol table
 void add_function_to_symbol_table(std::string &value) {
-  if(check_keywords(value)) {
-      keyword_error("reserved keyword and cannot be used as a function name.\n");
-  }
   Function f; 
   f.name = value; 
   symbol_table.push_back(f);
@@ -96,9 +89,6 @@ void add_function_to_symbol_table(std::string &value) {
 // when you see a symbol declaration inside the grammar, add
 // the symbol name as well as some type information to the symbol table
 void add_variable_to_symbol_table(std::string &value, Type t) {
-  if(check_keywords(value)) {
-    keyword_error("reserved keyword and cannot be used as a variable name.\n");
-  }
   Symbol s;
   s.name = value;
   s.type = t;
@@ -255,6 +245,9 @@ function_header: FUNC IDENT {
 		struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
 		std::string function_name = $2;
+  		if(check_keywords(value)) {
+      			yyerror("reserved keyword and cannot be used as a function name.");
+  		}
 		add_function_to_symbol_table(function_name);
 		$$ = node;
 	       }
@@ -372,6 +365,9 @@ declaration: INT IDENT {
                	if (find(variable_name)) {
 			yyerror("Duplicate variable.");
 		}
+                if(check_keywords(value)) {
+                        yyerror("reserved keyword and cannot be used as a variable name.");
+                }
 		add_variable_to_symbol_table(variable_name, Integer);
 
                 struct CodeNode *node = new CodeNode;
@@ -384,7 +380,10 @@ declaration: INT IDENT {
 		if (find(variable_name)) {
                         yyerror("Duplicate variable.");
                 }
-                add_variable_to_symbol_table(variable_name, Integer);
+                if(check_keywords(value)) {
+                        yyerror("reserved keyword and cannot be used as a variable name.");
+                } 
+	        add_variable_to_symbol_table(variable_name, Integer);
 
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string(". ") + std::string($2) + std::string("\n");
@@ -396,7 +395,10 @@ declaration: INT IDENT {
 		if (find(variable_name)) {
                         yyerror("Duplicate variable.");
                 }
-                add_variable_to_symbol_table(variable_name, Integer);
+                if(check_keywords(value)) {
+                        yyerror("reserved keyword and cannot be used as a variable name.");
+                } 
+	        add_variable_to_symbol_table(variable_name, Integer);
 
 	        struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
