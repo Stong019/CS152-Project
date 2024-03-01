@@ -280,6 +280,14 @@ statement: declaration
          }
          | READ IDENT   {
                 struct CodeNode *node = new CodeNode;
+		node->name = std::string($2);
+                if (!find(node->name)) {
+                        yyerror("Undeclared variable.");
+                }
+                else if (get_type(node->name) == Array) {
+                        yyerror("Not specifying array index.");
+                }
+		
                 node->code = std::string(".< ") + std::string($2) + std::string("\n");
                 $$ = node;
          }
