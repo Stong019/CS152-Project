@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 enum Type { Integer, Array };
 
@@ -60,6 +61,19 @@ bool find(std::string &value) {
     }
   }
   return false;
+}
+
+// returns variable type
+Type get_type(std::string &value) {
+  Function *f = get_function();
+  Type type;
+  for(int i=0; i < f->declarations.size(); i++) {
+    Symbol *s = &f->declarations[i];
+    if (s->name == value) {
+      type = s->type;
+    }
+  }
+  return type;
 }
 
 //similar to the find() func above that finds varibles in symbol table but for function
@@ -280,10 +294,23 @@ statement: declaration
          }
          | READ IDENT   {
                 struct CodeNode *node = new CodeNode;
+		node->name = std::string($2);
+                if (!find(node->name)) {
+                        yyerror("Undeclared variable.");
+                }
+                else if (get_type(node->name) == Array) {
+                        yyerror("Not specifying array index.");
+                }
+		
                 node->code = std::string(".< ") + std::string($2) + std::string("\n");
                 $$ = node;
          }
          | WRITE expression   {
+		//std::string variable_name = $2;
+		//if(!find(variable_name)) {
+		//	yyerror("Undeclared Variable");
+		//}
+		//#1
                 struct CodeNode *node = new CodeNode;
                 node->code = $2->code + std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
@@ -327,7 +354,10 @@ value: IDENT {
                 node->name = std::string($1);
 		if (!find(node->name)) {
                         yyerror("Undeclared variable.");
-                }				
+                }	
+		else if (get_type(node->name) == Array) {
+			yyerror("Not specifying array index.");
+		}			
 
                 $$ = node;
 	}
@@ -351,6 +381,15 @@ value: IDENT {
         }
         | IDENT L_BRAC expression R_BRAC {
                 struct CodeNode *node = new CodeNode;
+		std::string variable_name = $1;
+		if (!find(variable_name)) {
+                        yyerror("Undeclared variable.");
+                }
+		else if (get_type(variable_name) == Integer) {
+                        yyerror("Accessing index on non-array variable.");
+                }
+
+
         	std::string temp = create_temp();
                 node->code = $3->code + decl_temp_code(temp);
                 node->code += std::string("=[] ") + temp + std::string(", ") + std::string($1) + std::string(", ") + $3->name + std::string("\n");
@@ -362,6 +401,7 @@ value: IDENT {
 
 declaration: INT IDENT {
 		std::string variable_name = $2;
+
                	if (find(variable_name)) {
 			yyerror("Duplicate variable.");
 		}
@@ -392,14 +432,18 @@ declaration: INT IDENT {
         }
         | INT IDENT L_BRAC expression R_BRAC {
         	std::string variable_name = $2;
-		if (find(variable_name)) {
-                        yyerror("Duplicate variable.");
-                }
-                if(check_keywords(value)) {
-                        yyerror("reserved keyword and cannot be used as a variable name.");
-                } 
-	        add_variable_to_symbol_table(variable_name, Integer);
 
+        	std::string sz = $4->name;        
+		if(find(variable_name)){
+			                 yyerror("Duplicate variable.");
+		}
+		int arrSz;
+		std::stringstream ss(sz);
+		if(!(ss >> arrSz) || arrSz <= 0){
+			yyerror("Invalid array size.");
+		}
+		add_variable_to_symbol_table(variable_name, Array);
+		
 	        struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
 		node->code = $4->code;
