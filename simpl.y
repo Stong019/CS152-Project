@@ -386,10 +386,6 @@ declaration: INT IDENT {
 		add_variable_to_symbol_table(variable_name, Integer);
 
                 struct CodeNode *node = new CodeNode;
-		add_variable_to_symbol_table(variable_name, Integer);		
-                if(find(variable_name)) {
-			yyerror("Duplicate variable.");
-		}
 		node->name = std::string($2);
                 node->code = std::string(". ") + std::string($2) + std::string("\n");;
                 $$ = node;
