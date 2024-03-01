@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 
 enum Type { Integer, Array };
 
@@ -283,6 +284,11 @@ statement: declaration
                 $$ = node;
          }
          | WRITE expression   {
+		//std::string variable_name = $2;
+		//if(!find(variable_name)) {
+		//	yyerror("Undeclared Variable");
+		//}
+		//#1
                 struct CodeNode *node = new CodeNode;
                 node->code = $2->code + std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
@@ -373,6 +379,7 @@ value: IDENT {
 
 declaration: INT IDENT {
 		std::string variable_name = $2;
+
                	if (find(variable_name)) {
 			yyerror("Duplicate variable.");
 		}
@@ -397,11 +404,18 @@ declaration: INT IDENT {
         }
         | INT IDENT L_BRAC expression R_BRAC {
         	std::string variable_name = $2;
-		if (find(variable_name)) {
-                        yyerror("Duplicate variable.");
-                }
-                add_variable_to_symbol_table(variable_name, Array);
 
+        	std::string sz = $4->name;        
+		if(find(variable_name)){
+			                 yyerror("Duplicate variable.");
+		}
+		int arrSz;
+		std::stringstream ss(sz);
+		if(!(ss >> arrSz) || arrSz <= 0){
+			yyerror("Invalid array size.");
+		}
+		add_variable_to_symbol_table(variable_name, Array);
+		
 	        struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
 		node->code = $4->code;
