@@ -259,7 +259,7 @@ function_header: FUNC IDENT {
 		struct CodeNode *node = new CodeNode;
 		node->name = std::string($2);
 		std::string function_name = $2;
-  		if(check_keywords(value)) {
+  		if(check_keywords(function_name)) {
       			yyerror("reserved keyword and cannot be used as a function name.");
   		}
 		add_function_to_symbol_table(function_name);
@@ -405,7 +405,7 @@ declaration: INT IDENT {
                	if (find(variable_name)) {
 			yyerror("Duplicate variable.");
 		}
-                if(check_keywords(value)) {
+                if(check_keywords(variable_name)) {
                         yyerror("reserved keyword and cannot be used as a variable name.");
                 }
 		add_variable_to_symbol_table(variable_name, Integer);
@@ -420,7 +420,7 @@ declaration: INT IDENT {
 		if (find(variable_name)) {
                         yyerror("Duplicate variable.");
                 }
-                if(check_keywords(value)) {
+                if(check_keywords(variable_name)) {
                         yyerror("reserved keyword and cannot be used as a variable name.");
                 } 
 	        add_variable_to_symbol_table(variable_name, Integer);
@@ -435,8 +435,11 @@ declaration: INT IDENT {
 
         	std::string sz = $4->name;        
 		if(find(variable_name)){
-			                 yyerror("Duplicate variable.");
+	                yyerror("Duplicate variable.");
 		}
+		if(check_keywords(variable_name)) {
+                        yyerror("reserved keyword and cannot be used as a variable name.");
+                }
 		int arrSz;
 		std::stringstream ss(sz);
 		if(!(ss >> arrSz) || arrSz <= 0){
