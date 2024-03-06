@@ -146,7 +146,12 @@ std::string get_new_parameter_num() {
 }
 
 
-
+std::string create_label() {
+     static int num = 0;
+     std::string value = "Loop" + std::to_string(num);
+     num+=1;
+     return value;
+}
 
 
 extern int yylex();
@@ -509,15 +514,16 @@ if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY               
 
 while_stmt: WHILE L_PAREN expression R_PAREN L_CURLY statements R_CURLY {
                 struct CodeNode *node = new CodeNode;
+		std::string label = create_label();
 
-                node->code += std::string(": beginLoop\n");
+                node->code += std::string(": begin") + label + std::string("\n");
                 node->code += $3->code;
-                node->code += std::string("?:= loopBody, ") + $3->name + std::string("\n");
-                node->code += std::string(":= endLoop\n");
-                node->code += std::string(": loopBody\n");
+                node->code += std::string("?:= body") + label + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string(":= end") + label + std::string("\n");
+                node->code += std::string(": body") + label + std::string("\n");
                 node->code += $6->code;
-                node->code += std::string(":= beginLoop\n");
-                node->code += std::string(": endLoop\n");
+                node->code += std::string(":= begin") + label + std::string("\n");
+                node->code += std::string(": end") + label + std::string("\n");
                 $$ = node;
         }
         ;
