@@ -211,6 +211,12 @@ int paren_count = 0;
 %type <code_node> mod
 %type <code_node> assign
 %type <code_node> function_header
+%type <code_node> less
+%type <code_node> lesseq
+%type <code_node> great
+%type <code_node> greateq
+%type <code_node> equal
+%type <code_node> notequal
 
 %%
 
@@ -306,11 +312,6 @@ statement: declaration
                 $$ = node;
          }
          | WRITE expression   {
-		//std::string variable_name = $2;
-		//if(!find(variable_name)) {
-		//	yyerror("Undeclared Variable");
-		//}
-		//#1
                 struct CodeNode *node = new CodeNode;
                 node->code = $2->code + std::string(".> ") + $2->name + std::string("\n");
                 $$ = node;
@@ -508,16 +509,13 @@ if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY               
 
 while_stmt: WHILE L_PAREN expression R_PAREN L_CURLY statements R_CURLY {
                 struct CodeNode *node = new CodeNode;
-                struct CodeNode *expression = $3;
-                struct CodeNode *statements = $6;
 
                 node->code += std::string(": beginLoop\n");
-                node->code += std::string(". temp\n");
-                node->code += std::string("< temp, ") + expression->code + std::string("\n");
-                node->code += std::string("?:= loopBody, temp\n");
+                node->code += $3->code;
+                node->code += std::string("?:= loopBody, ") + $3->name + std::string("\n");
                 node->code += std::string(":= endLoop\n");
-                node->code += std::string(": loopbody\n");
-                node->code += statements->code;
+                node->code += std::string(": loopBody\n");
+                node->code += $6->code;
                 node->code += std::string(":= beginLoop\n");
                 node->code += std::string(": endLoop\n");
                 $$ = node;
@@ -595,12 +593,54 @@ assign: IDENT ASSIGN expression             {//printf("assign -> value ASSIGN ex
 
 
 	
-less: expression LESS expression                {printf("less -> expression LESS expression\n"); }
-lesseq: expression LESS_EQUAL expression        {printf("lesseq -> expression LESS_EQUAL expression\n");}
-great: expression GREATER expression            {printf("great -> expression GREATER expression\n");} 
-greateq: expression GREATER_EQUAL expression    {printf("greateq -> expression GREATER_EQUAL expression\n");}
-equal: expression EQUAL expression              {printf("equal -> expression EQUAL expression\n");}
-notequal: expression NOT_EQUAL expression       {printf("notequal -> expression NOT_EQUAL expression\n");};
+less: expression LESS expression                {//printf("less -> expression LESS expression\n"); 
+        std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("< ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+}
+lesseq: expression LESS_EQUAL expression        {//printf("lesseq -> expression LESS_EQUAL expression\n");
+        std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("<= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+}
+great: expression GREATER expression            {//printf("great -> expression GREATER expression\n");
+        std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("> ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+} 
+greateq: expression GREATER_EQUAL expression    {//printf("greateq -> expression GREATER_EQUAL expression\n");
+        std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string(">= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+}
+equal: expression EQUAL expression              {//printf("equal -> expression EQUAL expression\n");
+        std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("== ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+}
+notequal: expression NOT_EQUAL expression       {//printf("notequal -> expression NOT_EQUAL expression\n");
+        std::string temp = create_temp();
+        CodeNode *node = new CodeNode;
+        node->code = $1->code + $3->code + decl_temp_code(temp);
+        node->code += std::string("!= ") + temp + std::string(", ") + $1->name + std::string(", ") + $3->name + std::string("\n");
+        node->name = temp;
+        $$ = node;
+};
 
 %%
 
