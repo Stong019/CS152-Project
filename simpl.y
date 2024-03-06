@@ -147,11 +147,11 @@ std::string get_new_parameter_num() {
 
 
 
-static int label_count = 0;
+static int condition_count = 0;
 static int loop_count = 0;
 std::string create_label() {
-     std::string value = "_condition" + std::to_string(label_count);
-     label_count+=1;
+     std::string value = "_condition" + std::to_string(condition_count);
+     condition_count+=1;
      return value;
 }
 std::string create_loop_label() {
