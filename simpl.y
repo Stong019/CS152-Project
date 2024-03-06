@@ -146,13 +146,23 @@ std::string get_new_parameter_num() {
 }
 
 
+
+static int condition_count = 0;
+static int loop_count = 0;
 std::string create_label() {
-     static int num = 0;
-     std::string value = "Loop" + std::to_string(num);
-     num+=1;
+     std::string value = "_condition" + std::to_string(condition_count);
+     condition_count+=1;
      return value;
 }
-
+std::string create_loop_label() {
+     std::string value = "_loop" + std::to_string(loop_count);
+     loop_count+=1;
+     return value;
+}
+std::string break_label() {
+     std::string value = "_loop" + std::to_string(loop_count);
+     return value;
+}
 
 extern int yylex();
 extern FILE* yyin;
@@ -160,7 +170,6 @@ extern FILE* yyin;
 
 void yyerror(const char* s);
 
-int paren_count = 0;
 %}
 
 %locations
@@ -323,10 +332,12 @@ statement: declaration
          }
          | BREAK         {
                 struct CodeNode *node = new CodeNode;
-                node->code = std::string("BREAK\n");
+		std::string label = break_label();
+
+                node->code = std::string(":= end") + label + std::string("\n");
                 $$ = node;
          }
-         | CONTINUE     {
+         | CONTINUE     {// *** NOT IMPLEMENTED ***
                 struct CodeNode *node = new CodeNode;
                 node->code = std::string("CONTINUE\n");
                 $$ = node;
@@ -412,7 +423,7 @@ declaration: INT IDENT {
 			yyerror("Duplicate variable.");
 		}
                 if(check_keywords(variable_name)) {
-                        yyerror("reserved keyword and cannot be used as a variable name.");
+                        yyerror("Cannot use reserved keyword as variable name.");
                 }
 		add_variable_to_symbol_table(variable_name, Integer);
 
@@ -427,7 +438,7 @@ declaration: INT IDENT {
                         yyerror("Duplicate variable.");
                 }
                 if(check_keywords(variable_name)) {
-                        yyerror("reserved keyword and cannot be used as a variable name.");
+                        yyerror("Cannot use reserved keyword as variable name.");
                 } 
 	        add_variable_to_symbol_table(variable_name, Integer);
 
@@ -444,7 +455,7 @@ declaration: INT IDENT {
 	                yyerror("Duplicate variable.");
 		}
 		if(check_keywords(variable_name)) {
-                        yyerror("reserved keyword and cannot be used as a variable name.");
+                        yyerror("Cannot use reserved keyword as variable name.");
                 }
 		int arrSz;
 		std::stringstream ss(sz);
@@ -459,7 +470,7 @@ declaration: INT IDENT {
                 node->code += std::string(".[] ") + std::string($2) + std::string(", ") + $4->name + std::string("\n");
                 $$ = node;
         }
-        | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY {
+        | INT IDENT L_BRAC R_BRAC ASSIGN L_CURLY parameters R_CURLY {// *** NOT IMPLEMENTED ***
                 struct CodeNode *node = new CodeNode;
                 struct CodeNode *paramaters = $7;
                 node->code = std::string("INT ") + std::string($2) + std::string("ASSIGN ");
@@ -508,13 +519,38 @@ parameters: parameters COMMA expression {
 
 
 
-if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY                                    {printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY\n");}
-        | IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");}
+if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY                                    {//printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY\n");
+                struct CodeNode *node = new CodeNode;
+                std::string label = create_label();
+
+                node->code = $3->code;
+                node->code += std::string("?:= if") + label + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string(":= end") + label + std::string("\n");
+                node->code += std::string(": if") + label + std::string("\n");
+                node->code += $6->code;
+                node->code += std::string(": end") + label + std::string("\n");
+                $$ = node;
+	}	
+        | IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {//printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");
+                struct CodeNode *node = new CodeNode;
+                std::string label = create_label();
+
+                node->code = $3->code;
+                node->code += std::string("?:= if") + label + std::string(", ") + $3->name + std::string("\n");
+                node->code += std::string(":= else") + label + std::string("\n");
+                node->code += std::string(": if") + label + std::string("\n");
+                node->code += $6->code;
+		node->code += std::string(":= end") + label + std::string("\n");
+                node->code += std::string(": else") + label + std::string("\n");
+		node->code += $10->code;
+                node->code += std::string(": end") + label + std::string("\n");
+                $$ = node;
+	}
         ;
 
 while_stmt: WHILE L_PAREN expression R_PAREN L_CURLY statements R_CURLY {
                 struct CodeNode *node = new CodeNode;
-		std::string label = create_label();
+		std::string label = create_loop_label();
 
                 node->code += std::string(": begin") + label + std::string("\n");
                 node->code += $3->code;

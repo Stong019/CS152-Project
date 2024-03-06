@@ -4,10 +4,10 @@ START {
 
     i e 0.
 
-    ... (i lt 5) {
+    ... (i lt 2) {
         j e 0.
 
-        ... (j lt 10) {
+        ... (j lt 3) {
             < j.
             j e j p 1.
         }

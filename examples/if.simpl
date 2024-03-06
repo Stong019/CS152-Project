@@ -32,18 +32,19 @@
 START{
     #A e 100.
     #B e 50.
+    #C.
     ? (A lt B) {
-        #C e 0.
+        C e 0.
     }
     ! {
-        #C e 1.
+        C e 1.
     }
 
     < C.
 
     A e 100.
     B e 50.
-    ? (A leq B){
+    ? (A geq B){
         C e 0.
     }
     ! {
