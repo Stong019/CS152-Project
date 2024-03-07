@@ -226,8 +226,6 @@ void yyerror(const char* s);
 %type <code_node> greateq
 %type <code_node> equal
 %type <code_node> notequal
-%type <code_node> begin_loop
-%type <code_node> end_loop
 
 %%
 
@@ -367,6 +365,9 @@ bracestatement: if_stmt      {
                 $$ = node;
         }
         ;
+
+begin_loop: %empty {loop_count++;};
+end_loop: %empty {loop_count--;};
 
 expression: L_PAREN expression R_PAREN {$$ = $2;}
           | action
@@ -570,9 +571,6 @@ while_stmt: WHILE L_PAREN expression R_PAREN L_CURLY statements R_CURLY {
                 $$ = node;
         }
         ;
-
-begin_loop: %empty {loop_count++;};
-end_loop: %empty {loop_count--;};
 
 action: add
       | sub
