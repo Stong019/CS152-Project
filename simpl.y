@@ -577,12 +577,12 @@ action: add
       | mul
       | div
       | mod 
-      | less          {printf("action -> less\n");}
-      | lesseq        {printf("action -> lesseq\n");}
-      | great         {printf("action -> great\n");}
-      | greateq       {printf("action -> greateq\n");}
-      | equal         {printf("action -> equal\n");} 
-      | notequal      {printf("action -> notequal\n");}
+      | less         
+      | lesseq       
+      | great       
+      | greateq      
+      | equal         
+      | notequal   
       ;
 
 

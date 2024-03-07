@@ -1,0 +1,18 @@
+START {
+#A e 0.
+#B e 5.
+#C e 10.
+... (A lt B) {
+	... (B lt C) {
+		< C.
+
+		? (C is 8) {
+			b.
+		}
+		
+		C e C s 1.
+	}
+	< A.
+	A e A p 1.
+}
+}
