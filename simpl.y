@@ -148,18 +148,13 @@ std::string get_new_parameter_num() {
 
 
 static int condition_count = 0;
-static int loop_count = 0;
-std::string create_label() {
+static int loop_count = -1;
+std::string condition_label() {
      std::string value = "_condition" + std::to_string(condition_count);
      condition_count+=1;
      return value;
 }
-std::string create_loop_label() {
-     std::string value = "_loop" + std::to_string(loop_count);
-     loop_count+=1;
-     return value;
-}
-std::string break_label() {
+std::string loop_label() {
      std::string value = "_loop" + std::to_string(loop_count);
      return value;
 }
@@ -231,6 +226,8 @@ void yyerror(const char* s);
 %type <code_node> greateq
 %type <code_node> equal
 %type <code_node> notequal
+%type <code_node> begin_loop
+%type <code_node> end_loop
 
 %%
 
@@ -332,16 +329,26 @@ statement: declaration
          }
          | BREAK         {
                 struct CodeNode *node = new CodeNode;
-		std::string label = break_label();
+		std::string label = loop_label();
+
+		if(loop_count < 0){
+      		  yyerror("Break statement not within a loop.");
+     		}	
 
                 node->code = std::string(":= end") + label + std::string("\n");
                 $$ = node;
          }
-         | CONTINUE     {// *** NOT IMPLEMENTED ***
-                struct CodeNode *node = new CodeNode;
-                node->code = std::string("CONTINUE\n");
+         | CONTINUE     {
+         	struct CodeNode *node = new CodeNode;
+                std::string label = loop_label();
+
+                if(loop_count < 0){
+                  yyerror("Continue statement not within a loop.");
+                }
+
+                node->code = std::string(":= begin") + label + std::string("\n");
                 $$ = node;
-         }
+	 }
 	 | assign        {//printf("action -> assign\n");
                 struct CodeNode *node = new CodeNode;
                 node->code = $1->code;
@@ -354,9 +361,9 @@ bracestatement: if_stmt      {
                 node->code = $1->code;
                 $$ = node;
         }
-        | while_stmt         {
+        | begin_loop while_stmt end_loop        {
                 struct CodeNode *node = new CodeNode;
-                node->code = $1->code;
+                node->code = $2->code;
                 $$ = node;
         }
         ;
@@ -521,7 +528,7 @@ parameters: parameters COMMA expression {
 
 if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY                                    {//printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY\n");
                 struct CodeNode *node = new CodeNode;
-                std::string label = create_label();
+                std::string label = condition_label();
 
                 node->code = $3->code;
                 node->code += std::string("?:= if") + label + std::string(", ") + $3->name + std::string("\n");
@@ -533,7 +540,7 @@ if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY               
 	}	
         | IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY  {//printf("if -> IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY ELSE L_CURLY statements R_CURLY\n");
                 struct CodeNode *node = new CodeNode;
-                std::string label = create_label();
+                std::string label = condition_label();
 
                 node->code = $3->code;
                 node->code += std::string("?:= if") + label + std::string(", ") + $3->name + std::string("\n");
@@ -550,7 +557,7 @@ if_stmt: IF L_PAREN expression R_PAREN L_CURLY statements R_CURLY               
 
 while_stmt: WHILE L_PAREN expression R_PAREN L_CURLY statements R_CURLY {
                 struct CodeNode *node = new CodeNode;
-		std::string label = create_loop_label();
+		std::string label = loop_label();
 
                 node->code += std::string(": begin") + label + std::string("\n");
                 node->code += $3->code;
@@ -563,6 +570,9 @@ while_stmt: WHILE L_PAREN expression R_PAREN L_CURLY statements R_CURLY {
                 $$ = node;
         }
         ;
+
+begin_loop: %empty {loop_count++;};
+end_loop: %empty {loop_count--;};
 
 action: add
       | sub

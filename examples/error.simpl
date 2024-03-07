@@ -20,4 +20,6 @@ fn TEST (#A _ #B) {
 #C e 5.
 < YOLO().
 < B p C p D.
+b.
+c.
 }
