@@ -246,9 +246,9 @@ functions: functions function   {
             $$ = node;
         }
         |  %empty {
-            struct CodeNode *node = new CodeNode;
-            $$ = node;
-        }
+	    struct CodeNode *node = new CodeNode;
+	    $$ = node;
+	}
         ;
 
 function: function_header L_PAREN parameters R_PAREN L_CURLY statements R_CURLY{
@@ -298,7 +298,7 @@ statements: statements statement PERIOD {
         | %empty {
             struct CodeNode *node = new CodeNode;
             $$ = node;
-        }
+	}
         ;
 
 statement: declaration
@@ -347,26 +347,15 @@ statement: declaration
                 node->code = std::string(":= begin") + label + std::string("\n");
                 $$ = node;
 	 }
-	 | assign        {//printf("action -> assign\n");
-                struct CodeNode *node = new CodeNode;
-                node->code = $1->code;
-                $$ = node;
-         }
+	 | assign
          ;
 
-bracestatement: if_stmt      {
-                struct CodeNode *node = new CodeNode;
-                node->code = $1->code;
-                $$ = node;
-        }
-        | begin_loop while_stmt end_loop        {
-                struct CodeNode *node = new CodeNode;
-                node->code = $2->code;
-                $$ = node;
-        }
-        ;
+bracestatement: if_stmt
+              | begin_loop while_stmt end_loop {$$ = $2;}
+	      ;
 
 begin_loop: %empty {loop_count++;};
+
 end_loop: %empty {loop_count--;};
 
 expression: L_PAREN expression R_PAREN {$$ = $2;}
@@ -516,9 +505,9 @@ parameters: parameters COMMA expression {
                 $$ = node;
 	}
         | %empty {
-                struct CodeNode *node = new CodeNode;
-                $$ = node;
-        }
+            struct CodeNode *node = new CodeNode;
+            $$ = node;
+	}
         ;
 
 
